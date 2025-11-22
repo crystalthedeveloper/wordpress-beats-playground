@@ -1,0 +1,34 @@
+{
+  "plugins": [
+    {
+      "type": "github",
+      "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
+      "branch": "main"
+    },
+    {
+      "type": "github",
+      "repo": "crystalthedeveloper/wordpress-plugin-beats-visualizer",
+      "branch": "main"
+    }
+  ],
+  "steps": [
+    {
+      "step": "activatePlugin",
+      "plugin": "beats-upload-player/beats-upload-player.php"
+    },
+    {
+      "step": "activatePlugin",
+      "plugin": "beats-visualizer/beats-visualizer.php"
+    },
+    {
+      "step": "createPost",
+      "title": "Beats Playground",
+      "slug": "beats-playground",
+      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode --> <!-- wp:shortcode -->[beats_visualizer_demo]<!-- /wp:shortcode -->"
+    },
+    {
+      "step": "setHomepage",
+      "pageId": "{{posts.beats-playground}}"
+    }
+  ]
+}
