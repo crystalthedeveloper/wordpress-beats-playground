@@ -14,11 +14,11 @@
   "steps": [
     {
       "step": "activatePlugin",
-      "plugin": "beats-upload-player.php"
+      "plugin": "beats-upload-player/beats-upload-player.php"
     },
     {
       "step": "activatePlugin",
-      "plugin": "beats-visualizer.php"
+      "plugin": "beats-visualizer/beats-visualizer.php"
     },
     {
       "step": "createPost",
