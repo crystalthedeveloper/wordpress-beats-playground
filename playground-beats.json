@@ -3,14 +3,12 @@
     {
       "type": "github",
       "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
-      "branch": "main",
-      "pluginDirectory": "beats-upload-player"
+      "branch": "main"
     },
     {
       "type": "github",
       "repo": "crystalthedeveloper/wordpress-plugin-beats-visualizer",
-      "branch": "main",
-      "pluginDirectory": "beats-visualizer"
+      "branch": "main"
     }
   ],
   "steps": [
