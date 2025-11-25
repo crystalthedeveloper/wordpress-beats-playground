@@ -1,13 +1,18 @@
 {
-  "plugins": [
-    {
-      "type": "github",
-      "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
-      "branch": "main",
-      "path": "/"
-    }
-  ],
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+
+  "landingPage": "/beats-playground/",
+
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "6.5"
+  },
+
   "steps": [
+    {
+      "step": "installPlugin",
+      "pluginZipUrl": "https://github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/archive/refs/heads/main.zip"
+    },
     {
       "step": "activatePlugin",
       "plugin": "beats-upload-player/beats-upload-player.php"
