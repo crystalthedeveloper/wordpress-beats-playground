@@ -35,20 +35,24 @@ The `playground-beats.json` file defines every automated step:
     "php": "8.2",
     "wp": "6.5"
   },
+  "plugins": [
+    {
+      "type": "github",
+      "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
+      "branch": "main",
+      "path": "/"
+    }
+  ],
   "steps": [
     {
-      "step": "installPlugin",
-      "pluginZipUrl": "https://github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/archive/refs/heads/main.zip"
-    },
-    {
       "step": "activatePlugin",
-      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player.php"
+      "plugin": "wordpress-plugin-beats-upload-player/beats-upload-player.php"
     },
     {
       "step": "createPost",
       "title": "Beats Playground",
       "slug": "beats-playground",
-      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
+      "content": "<!-- wp:group {\"layout\":{\"type\":\"constrained\",\"contentSize\":\"900px\"}} -->\n<div class=\"wp-block-group\"><!-- wp:heading {\"textAlign\":\"center\",\"style\":{\"typography\":{\"fontSize\":\"64px\",\"fontStyle\":\"normal\",\"fontWeight\":\"700\"}}} -->\n<h2 class=\"wp-block-heading has-text-align-center\" style=\"font-size:64px;font-style:normal;font-weight:700\">Home</h2>\n<!-- /wp:heading -->\n\n<!-- wp:group {\"style\":{\"spacing\":{\"blockGap\":\"var:preset|spacing|50\"}},\"layout\":{\"type\":\"default\"}} -->\n<div class=\"wp-block-group\"><!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"color\":\"#111\",\"radius\":\"18px\"},\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|40\",\"right\":\"var:preset|spacing|40\",\"bottom\":\"var:preset|spacing|40\",\"left\":\"var:preset|spacing|40\"},\"blockGap\":\"var:preset|spacing|20\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"border-color:#111;border-width:1px;border-radius:18px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textTransform\":\"uppercase\",\"fontStyle\":\"normal\",\"fontWeight\":\"600\",\"letterSpacing\":\"0.18em\"}},\"fontSize\":\"small\"} -->\n<p class=\"has-small-font-size\" style=\"font-style:normal;font-weight:600;letter-spacing:0.18em;text-transform:uppercase\">Shortcode</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:shortcode -->\n[beats_category_search]\n<!-- /wp:shortcode --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"color\":\"#111\",\"radius\":\"18px\"},\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|40\",\"right\":\"var:preset|spacing|40\",\"bottom\":\"var:preset|spacing|40\",\"left\":\"var:preset|spacing|40\"},\"blockGap\":\"var:preset|spacing|20\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"border-color:#111;border-width:1px;border-radius:18px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textTransform\":\"uppercase\",\"fontStyle\":\"normal\",\"fontWeight\":\"600\",\"letterSpacing\":\"0.18em\"}},\"fontSize\":\"small\"} -->\n<p class=\"has-small-font-size\" style=\"font-style:normal;font-weight:600;letter-spacing:0.18em;text-transform:uppercase\">Shortcode</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:shortcode -->\n[beats_visualizer]\n<!-- /wp:shortcode --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"color\":\"#111\",\"radius\":\"18px\"},\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|40\",\"right\":\"var:preset|spacing|40\",\"bottom\":\"var:preset|spacing|40\",\"left\":\"var:preset|spacing|40\"},\"blockGap\":\"var:preset|spacing|20\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"border-color:#111;border-width:1px;border-radius:18px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textTransform\":\"uppercase\",\"fontStyle\":\"normal\",\"fontWeight\":\"600\",\"letterSpacing\":\"0.18em\"}},\"fontSize\":\"small\"} -->\n<p class=\"has-small-font-size\" style=\"font-style:normal;font-weight:600;letter-spacing:0.18em;text-transform:uppercase\">Shortcode</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:shortcode -->\n[beats_display_home]\n<!-- /wp:shortcode --></div>\n<!-- /wp:group -->\n\n<!-- wp:group {\"style\":{\"border\":{\"width\":\"1px\",\"color\":\"#111\",\"radius\":\"18px\"},\"spacing\":{\"padding\":{\"top\":\"var:preset|spacing|40\",\"right\":\"var:preset|spacing|40\",\"bottom\":\"var:preset|spacing|40\",\"left\":\"var:preset|spacing|40\"},\"blockGap\":\"var:preset|spacing|20\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"border-color:#111;border-width:1px;border-radius:18px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)\"><!-- wp:paragraph {\"style\":{\"typography\":{\"textTransform\":\"uppercase\",\"fontStyle\":\"normal\",\"fontWeight\":\"600\",\"letterSpacing\":\"0.18em\"}},\"fontSize\":\"small\"} -->\n<p class=\"has-small-font-size\" style=\"font-style:normal;font-weight:600;letter-spacing:0.18em;text-transform:uppercase\">Shortcode</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:shortcode -->\n[beats_global_player]\n<!-- /wp:shortcode --></div>\n<!-- /wp:group --></div>\n<!-- /wp:group --></div>\n<!-- /wp:group -->"
     },
     {
       "step": "setHomepage",
@@ -68,21 +72,26 @@ The `playground-beats.json` file defines every automated step:
 ## ✏️ Customize the Demo
 
 - **Modify the page content:** edit the `content` field to include copy, headings, or additional shortcodes.  
-- **Add more plugins:** insert extra `installPlugin` + `activatePlugin` steps with the ZIP URLs of the plugins you need.  
+- **Add more plugins:** append more entries to the `plugins` array (GitHub, ZIP, or WordPress.org) and add activation steps for each.  
 - **Chain steps:** Playground also accepts steps such as `importFile`, `setOption`, or running `wp-cli` commands. See the [official docs](https://wordpress.github.io/wordpress-playground/) for the full schema.
 
 ### Adding the Beats Visualizer (optional)
 
-If you want the page to showcase the Beats Visualizer plugin too, append two steps before the `createPost` block:
+If you want the page to showcase the Beats Visualizer plugin too, add another entry to `plugins` plus an activation step before the `createPost` block:
 
 ```json
 {
-  "step": "installPlugin",
-  "pluginZipUrl": "https://github.com/crystalthedeveloper/wordpress-plugin-beats-visualizer/archive/refs/heads/main.zip"
-},
+  "type": "github",
+  "repo": "crystalthedeveloper/wordpress-plugin-beats-visualizer",
+  "branch": "main",
+  "path": "/"
+}
+```
+
+```json
 {
   "step": "activatePlugin",
-  "plugin": "wordpress-plugin-beats-visualizer-main/beats-visualizer.php"
+  "plugin": "wordpress-plugin-beats-visualizer/beats-visualizer.php"
 }
 ```
 
