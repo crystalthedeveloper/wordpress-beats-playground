@@ -11,7 +11,7 @@
   "steps": [
     {
       "step": "installPlugin",
-      "pluginZipUrl": "https://github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/archive/refs/heads/main.zip"
+      "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main"
     },
     {
       "step": "activatePlugin",
