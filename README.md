@@ -29,23 +29,31 @@ The `playground-beats.json` file defines every automated step:
 
 ```json
 {
-  "plugins": [
-    {
-      "type": "github",
-      "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
-      "branch": "main",
-      "path": "/"
-    }
-  ],
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "landingPage": "/beats-playground/",
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "6.5"
+  },
   "steps": [
-    { "step": "activatePlugin", "plugin": "wordpress-plugin-beats-upload-player/beats-upload-player.php" },
+    {
+      "step": "installPlugin",
+      "pluginZipUrl": "https://github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/archive/refs/heads/main.zip"
+    },
+    {
+      "step": "activatePlugin",
+      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player.php"
+    },
     {
       "step": "createPost",
       "title": "Beats Playground",
       "slug": "beats-playground",
       "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
     },
-    { "step": "setHomepage", "pageId": "{{posts.beats-playground}}" }
+    {
+      "step": "setHomepage",
+      "pageId": "{{posts.beats-playground}}"
+    }
   ]
 }
 ```
@@ -60,23 +68,25 @@ The `playground-beats.json` file defines every automated step:
 ## ✏️ Customize the Demo
 
 - **Modify the page content:** edit the `content` field to include copy, headings, or additional shortcodes.  
-- **Add more plugins:** append entries to the `plugins` array (GitHub, ZIP, or WordPress.org sources are supported).  
+- **Add more plugins:** insert extra `installPlugin` + `activatePlugin` steps with the ZIP URLs of the plugins you need.  
 - **Chain steps:** Playground also accepts steps such as `importFile`, `setOption`, or running `wp-cli` commands. See the [official docs](https://wordpress.github.io/wordpress-playground/) for the full schema.
 
 ### Adding the Beats Visualizer (optional)
 
-If you want the page to showcase the Beats Visualizer too, add another plugin entry and update the content:
+If you want the page to showcase the Beats Visualizer plugin too, append two steps before the `createPost` block:
 
 ```json
 {
-  "type": "github",
-  "repo": "crystalthedeveloper/wordpress-plugin-beats-visualizer",
-  "branch": "main",
-  "path": "/"
+  "step": "installPlugin",
+  "pluginZipUrl": "https://github.com/crystalthedeveloper/wordpress-plugin-beats-visualizer/archive/refs/heads/main.zip"
+},
+{
+  "step": "activatePlugin",
+  "plugin": "wordpress-plugin-beats-visualizer-main/beats-visualizer.php"
 }
 ```
 
-Then reference its shortcode, e.g.:
+Then reference its shortcode inside the page content, e.g.:
 
 ```html
 <!-- wp:heading --><h2>Visualizer Preview</h2><!-- /wp:heading -->
