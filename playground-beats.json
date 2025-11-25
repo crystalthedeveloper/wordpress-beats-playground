@@ -5,12 +5,6 @@
       "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
       "branch": "main",
       "path": "/"
-    },
-    {
-      "type": "github",
-      "repo": "crystalthedeveloper/wordpress-plugin-beats-visualizer",
-      "branch": "main",
-      "path": "/"
     }
   ],
   "steps": [
@@ -19,14 +13,10 @@
       "plugin": "wordpress-plugin-beats-upload-player/beats-upload-player.php"
     },
     {
-      "step": "activatePlugin",
-      "plugin": "wordpress-plugin-beats-visualizer/beats-visualizer.php"
-    },
-    {
       "step": "createPost",
       "title": "Beats Playground",
       "slug": "beats-playground",
-      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode --> <!-- wp:shortcode -->[beats_visualizer_demo]<!-- /wp:shortcode -->"
+      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
     },
     {
       "step": "setHomepage",

@@ -1,91 +1,104 @@
 # WordPress Beats Playground
 
-A fully interactive, browser-based WordPress demo environment for the **Beats Upload Player** and **Beats Visualizer** plugins.
-This repository contains the official **WordPress Playground configuration** that:
-
-- Installs both plugins automatically from GitHub  
-- Activates them inside a sandboxed WordPress instance  
-- Creates a “Beats Playground” demo page  
-- Loads the live shortcodes for hands-on testing  
-- Requires **no installation, no hosting, and no setup**
-
-This allows users to **try both plugins instantly**—just like a Webflow Marketplace preview.
+This repository houses a **WordPress Playground configuration** that spins up a disposable site focused on the **Beats Upload Player** plugin. The Playground session installs the plugin from GitHub, activates it, and creates a “Beats Playground” page that renders the `[beats_player_demo]` shortcode so anyone can try the uploader in seconds—no hosting, no local setup.
 
 ---
 
-## 🚀 Try the Live Demo (One Click)
+## 🚀 Quick Start
 
-Click below to launch a fresh WordPress environment with both plugins pre-installed:
+1. Open the link below in any modern browser.  
+2. Playground provisions a brand-new WordPress instance (powered by WebAssembly).  
+3. The Beats Upload Player plugin is already active, and the homepage shows the demo shortcode.
 
-👉 **https://playground.wordpress.net/?config=RAW_JSON_URL_HERE**
+👉 **https://playground.wordpress.net/?config=https://raw.githubusercontent.com/crystalthedeveloper/wordpress-beats-playground/main/playground-beats.json**
 
-*(Replace with your real raw JSON link)*
-
-The demo loads in seconds and includes:
-
-- Beats Upload Player  
-- Beats Visualizer  
-- A combined live preview page  
-- All core features enabled  
+> Forking the repo? Replace the `raw.githubusercontent.com` URL above with your fork’s raw `playground-beats.json`.
 
 ---
 
-## 📦 Included in This Repo
+## 📁 Repository Contents
 
-### `playground-beats.json`  
-The main configuration file that:
-
-- Downloads both plugins from GitHub  
-- Activates them  
-- Creates the “Beats Playground” page  
-- Inserts the shortcodes:  
-  - `[beats_player_demo]`  
-  - `[beats_visualizer_demo]`  
-- Sets the page as the homepage  
-
-This ensures a complete hands-on experience in Playground.
+- `README.md` — Documentation for launching and customizing the Playground experience.  
+- `playground-beats.json` — The configuration consumed by WordPress Playground.
 
 ---
 
-## 🛠 Requirements for the Plugins
+## 🔧 How the Playground Is Provisioned
 
-To ensure the demo works correctly, each plugin includes a dedicated demo shortcode:
+The `playground-beats.json` file defines every automated step:
 
-### Beats Upload Player
-
-```php
-add_shortcode('beats_player_demo', function () {
-    return '<h3>Beats Upload Player Demo</h3>' . do_shortcode('[beats_upload_player]');
-});
+```json
+{
+  "plugins": [
+    {
+      "type": "github",
+      "repo": "crystalthedeveloper/wordpress-plugin-beats-upload-player",
+      "branch": "main",
+      "path": "/"
+    }
+  ],
+  "steps": [
+    { "step": "activatePlugin", "plugin": "wordpress-plugin-beats-upload-player/beats-upload-player.php" },
+    {
+      "step": "createPost",
+      "title": "Beats Playground",
+      "slug": "beats-playground",
+      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
+    },
+    { "step": "setHomepage", "pageId": "{{posts.beats-playground}}" }
+  ]
+}
 ```
 
-### Beats Visualizer
+- **Plugin install:** pulls the Beats Upload Player directly from GitHub.  
+- **Activation:** ensures the plugin is ready the moment Playground boots.  
+- **Demo page:** renders the `[beats_player_demo]` shortcode inside a Block Editor shortcode block.  
+- **Homepage:** the newly created “Beats Playground” page becomes the front page so the demo loads immediately.
 
-```php
-add_shortcode('beats_visualizer_demo', function () {
-    return '<h3>Beats Visualizer Demo</h3>' . do_shortcode('[beats_visualizer]');
-});
+---
+
+## ✏️ Customize the Demo
+
+- **Modify the page content:** edit the `content` field to include copy, headings, or additional shortcodes.  
+- **Add more plugins:** append entries to the `plugins` array (GitHub, ZIP, or WordPress.org sources are supported).  
+- **Chain steps:** Playground also accepts steps such as `importFile`, `setOption`, or running `wp-cli` commands. See the [official docs](https://wordpress.github.io/wordpress-playground/) for the full schema.
+
+### Adding the Beats Visualizer (optional)
+
+If you want the page to showcase the Beats Visualizer too, add another plugin entry and update the content:
+
+```json
+{
+  "type": "github",
+  "repo": "crystalthedeveloper/wordpress-plugin-beats-visualizer",
+  "branch": "main",
+  "path": "/"
+}
 ```
 
-These shortcodes are auto-inserted into the generated demo page.
+Then reference its shortcode, e.g.:
+
+```html
+<!-- wp:heading --><h2>Visualizer Preview</h2><!-- /wp:heading -->
+<!-- wp:shortcode -->[beats_visualizer_demo]<!-- /wp:shortcode -->
+```
 
 ---
 
-## 🤝 About This Playground
+## 🧩 Shortcode Helpers
 
-This demo environment is ideal for:
+The demo expects each plugin to register its own “demo wrapper” shortcode so the preview has context. Example:
 
-- Users evaluating the plugins  
-- Developers testing compatibility  
-- Marketplace-style previews  
-- Documentation examples  
-- Plugin marketing and onboarding  
+```php
+add_shortcode( 'beats_player_demo', function () {
+    return '<h3>Beats Upload Player Demo</h3>' . do_shortcode( '[beats_upload_player]' );
+} );
+```
 
-Everything runs inside the browser using **WebAssembly-powered WordPress** (no server needed).
+Ship an equivalent snippet in each plugin to keep the Playground content clean.
 
 ---
 
-## 📬 Questions or Feedback?
+## 🤝 Feedback
 
-Feel free to open an issue or reach out at:  
-https://www.crystalthedeveloper.ca
+Questions, bugs, or feature ideas? Open an issue or reach out via https://www.crystalthedeveloper.ca. Thanks for testing Beats in Playground!
