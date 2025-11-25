@@ -15,7 +15,7 @@
     },
     {
       "step": "activatePlugin",
-      "plugin": "beats-upload-player/beats-upload-player.php"
+      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player/beats-upload-player.php"
     },
     {
       "step": "createPost",
