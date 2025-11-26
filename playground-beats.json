@@ -10,28 +10,23 @@
 
   "steps": [
     {
-      "step": "runPHP",
-      "code": "echo 'Blueprint started';"
+      "step": "log",
+      "message": "🚀 Blueprint started"
     },
 
     {
-      "step": "runPHP",
-      "code": "echo 'Downloading plugin ZIP...';"
+      "step": "installPlugins",
+      "plugins": [
+        {
+          "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main",
+          "pluginData": { "slug": "beats-upload-player" }
+        }
+      ]
     },
 
     {
-      "step": "installPlugin",
-      "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main"
-    },
-
-    {
-      "step": "runPHP",
-      "code": "echo 'Plugin ZIP installed';"
-    },
-
-    {
-      "step": "runPHP",
-      "code": "echo 'Activating plugin...';"
+      "step": "log",
+      "message": "🔧 Plugin installed, activating…"
     },
 
     {
@@ -40,13 +35,8 @@
     },
 
     {
-      "step": "runPHP",
-      "code": "echo 'Plugin activated';"
-    },
-
-    {
-      "step": "runPHP",
-      "code": "echo 'Creating Beats Playground page...';"
+      "step": "log",
+      "message": "📝 Creating demo page…"
     },
 
     {
@@ -57,18 +47,13 @@
     },
 
     {
-      "step": "runPHP",
-      "code": "echo 'Setting homepage';"
-    },
-
-    {
       "step": "setHomepage",
       "pageId": "{{posts.beats-playground}}"
     },
 
     {
-      "step": "runPHP",
-      "code": "echo 'Blueprint finished';"
+      "step": "log",
+      "message": "🎉 Blueprint finished!"
     }
   ]
 }
