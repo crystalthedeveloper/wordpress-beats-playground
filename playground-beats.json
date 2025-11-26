@@ -8,65 +8,53 @@
   "steps": [
     {
       "step": "runPHP",
-      "code": "echo 'Blueprint started' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Blueprint started' . PHP_EOL;"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Downloading plugin ZIP' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Downloading plugin ZIP' . PHP_EOL;"
     },
     {
       "step": "installPlugin",
-      "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main",
-      "capture": true
+      "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Plugin ZIP installed' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Plugin ZIP installed' . PHP_EOL;"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Activating plugin' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Activating plugin' . PHP_EOL;"
     },
     {
       "step": "activatePlugin",
-      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player.php",
-      "capture": true
+      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player.php"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Plugin activated' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Plugin activated' . PHP_EOL;"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Creating Beats Playground page' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Creating Beats Playground page' . PHP_EOL;"
     },
     {
       "step": "createPost",
       "title": "Beats Playground",
       "slug": "beats-playground",
-      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->",
-      "capture": true
+      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Page created, setting as homepage' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Page created, setting as homepage' . PHP_EOL;"
     },
     {
       "step": "setHomepage",
-      "pageId": "{{posts.beats-playground}}",
-      "capture": true
+      "pageId": "{{posts.beats-playground}}"
     },
     {
       "step": "runPHP",
-      "code": "echo 'Blueprint finished' . PHP_EOL;",
-      "capture": true
+      "code": "echo 'Blueprint finished' . PHP_EOL;"
     }
   ]
 }
