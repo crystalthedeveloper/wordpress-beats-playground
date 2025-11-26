@@ -10,11 +10,6 @@
 
   "steps": [
     {
-      "step": "log",
-      "message": "🚀 Blueprint started"
-    },
-
-    {
       "step": "installPlugins",
       "plugins": [
         {
@@ -24,11 +19,6 @@
           }
         }
       ]
-    },
-
-    {
-      "step": "log",
-      "message": "🔧 Plugin installed, activating…"
     },
 
     {
@@ -46,11 +36,6 @@
     {
       "step": "setHomepage",
       "pageId": "{{posts.beats-playground}}"
-    },
-
-    {
-      "step": "log",
-      "message": "🎉 Blueprint finished!"
     }
   ]
 }
