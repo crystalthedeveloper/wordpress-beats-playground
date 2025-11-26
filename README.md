@@ -31,7 +31,7 @@ The `playground-beats.json` file defines every automated step:
 ```json
 {
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-  "landingPage": "/",
+  "landingPage": "/beats-playground/",
   "preferredVersions": {
     "php": "8.2",
     "wp": "6.5"

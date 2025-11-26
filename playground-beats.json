@@ -1,7 +1,7 @@
 {
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
 
-  "landingPage": "/",
+  "landingPage": "/beats-playground/",
 
   "preferredVersions": {
     "php": "8.2",
