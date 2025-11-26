@@ -1,13 +1,10 @@
 {
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-
   "landingPage": "/beats-playground/",
-
   "preferredVersions": {
     "php": "8.2",
     "wp": "6.5"
   },
-
   "steps": [
     {
       "step": "log",
@@ -21,12 +18,12 @@
     },
     {
       "step": "installPlugin",
-      "pluginZipUrl": "https://raw.githubusercontent.com/crystalthedeveloper/wordpress-beats-playground/main/beats-upload-player.zip",
+      "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main",
       "capture": true
     },
     {
       "step": "log",
-      "message": "Plugin ZIP downloaded",
+      "message": "Plugin ZIP installed",
       "capture": true
     },
     {
@@ -36,7 +33,7 @@
     },
     {
       "step": "activatePlugin",
-      "plugin": "beats-upload-player/beats-upload-player.php",
+      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player/beats-upload-player.php",
       "capture": true
     },
     {
@@ -58,22 +55,12 @@
     },
     {
       "step": "log",
-      "message": "Page created",
-      "capture": true
-    },
-    {
-      "step": "log",
-      "message": "Setting homepage",
+      "message": "Page created, setting as homepage",
       "capture": true
     },
     {
       "step": "setHomepage",
       "pageId": "{{posts.beats-playground}}",
-      "capture": true
-    },
-    {
-      "step": "log",
-      "message": "Homepage set",
       "capture": true
     },
     {
