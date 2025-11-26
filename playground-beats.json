@@ -7,13 +7,13 @@
   },
   "steps": [
     {
-      "step": "log",
-      "message": "Blueprint started",
+      "step": "runPHP",
+      "code": "echo 'Blueprint started';",
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Downloading plugin ZIP",
+      "step": "runPHP",
+      "code": "echo 'Downloading plugin ZIP';",
       "capture": true
     },
     {
@@ -22,13 +22,13 @@
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Plugin ZIP installed",
+      "step": "runPHP",
+      "code": "echo 'Plugin ZIP installed';",
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Activating plugin",
+      "step": "runPHP",
+      "code": "echo 'Activating plugin';",
       "capture": true
     },
     {
@@ -37,13 +37,13 @@
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Plugin activated",
+      "step": "runPHP",
+      "code": "echo 'Plugin activated';",
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Creating Beats Playground page",
+      "step": "runPHP",
+      "code": "echo 'Creating Beats Playground page';",
       "capture": true
     },
     {
@@ -54,8 +54,8 @@
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Page created, setting as homepage",
+      "step": "runPHP",
+      "code": "echo 'Page created, setting as homepage';",
       "capture": true
     },
     {
@@ -64,8 +64,8 @@
       "capture": true
     },
     {
-      "step": "log",
-      "message": "Blueprint finished",
+      "step": "runPHP",
+      "code": "echo 'Blueprint finished';",
       "capture": true
     }
   ]
