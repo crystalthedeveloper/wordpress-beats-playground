@@ -2,7 +2,6 @@
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
 
   "landingPage": "/beats-playground/",
-
   "preferredVersions": {
     "php": "8.2",
     "wp": "6.5"
@@ -10,13 +9,10 @@
 
   "steps": [
     {
-      "step": "installPlugins",
+      "step": "importPlugins",
       "plugins": [
         {
-          "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main",
-          "pluginData": {
-            "slug": "beats-upload-player"
-          }
+          "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main"
         }
       ]
     },
