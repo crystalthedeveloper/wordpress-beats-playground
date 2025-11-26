@@ -1,5 +1,5 @@
 {
-  "$schema": "https://playground.wordpress.net/schema/blueprint-v0.json",
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
 
   "landingPage": "/beats-playground/",
 
@@ -10,17 +10,17 @@
 
   "steps": [
     {
-      "step": "importPlugins",
-      "plugins": [
-        {
-          "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main"
-        }
-      ]
+      "step": "unzip",
+      "zipFile": {
+        "resource": "url",
+        "url": "https://raw.githubusercontent.com/crystalthedeveloper/wordpress-beats-playground/main/assets/beats-upload-player.zip",
+        "caption": "Bundling Beats Upload Player"
+      },
+      "extractToPath": "/wordpress/wp-content/plugins/"
     },
-
     {
       "step": "activatePlugin",
-      "plugin": "beats-upload-player/beats-upload-player.php"
+      "pluginPath": "beats-upload-player/beats-upload-player.php"
     },
 
     {

@@ -20,6 +20,7 @@ This repository houses a **WordPress Playground configuration** that spins up a 
 
 - `README.md` — Documentation for launching and customizing the Playground experience.  
 - `playground-beats.json` — The configuration consumed by WordPress Playground.
+- `assets/beats-upload-player.zip` — Bundled Beats Upload Player plugin that the blueprint unzips into `/wp-content/plugins`.
 
 ---
 
