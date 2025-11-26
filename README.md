@@ -10,7 +10,7 @@ This repository houses a **WordPress Playground configuration** that spins up a 
 2. Playground provisions a brand-new WordPress instance (powered by WebAssembly).  
 3. The Beats Upload Player plugin is already active, and the homepage shows the demo shortcode.
 
-👉 **https://playground.wordpress.net/?config=https://raw.githubusercontent.com/crystalthedeveloper/wordpress-beats-playground/main/playground-beats.json**
+👉 **https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/crystalthedeveloper/wordpress-beats-playground/main/playground-beats.json**
 
 > Forking the repo? Replace the `raw.githubusercontent.com` URL above with your fork’s raw `playground-beats.json`.
 
