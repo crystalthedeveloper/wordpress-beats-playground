@@ -8,12 +8,12 @@
   "steps": [
     {
       "step": "runPHP",
-      "code": "echo 'Blueprint started';",
+      "code": "echo 'Blueprint started' . PHP_EOL;",
       "capture": true
     },
     {
       "step": "runPHP",
-      "code": "echo 'Downloading plugin ZIP';",
+      "code": "echo 'Downloading plugin ZIP' . PHP_EOL;",
       "capture": true
     },
     {
@@ -23,12 +23,12 @@
     },
     {
       "step": "runPHP",
-      "code": "echo 'Plugin ZIP installed';",
+      "code": "echo 'Plugin ZIP installed' . PHP_EOL;",
       "capture": true
     },
     {
       "step": "runPHP",
-      "code": "echo 'Activating plugin';",
+      "code": "echo 'Activating plugin' . PHP_EOL;",
       "capture": true
     },
     {
@@ -38,12 +38,12 @@
     },
     {
       "step": "runPHP",
-      "code": "echo 'Plugin activated';",
+      "code": "echo 'Plugin activated' . PHP_EOL;",
       "capture": true
     },
     {
       "step": "runPHP",
-      "code": "echo 'Creating Beats Playground page';",
+      "code": "echo 'Creating Beats Playground page' . PHP_EOL;",
       "capture": true
     },
     {
@@ -55,7 +55,7 @@
     },
     {
       "step": "runPHP",
-      "code": "echo 'Page created, setting as homepage';",
+      "code": "echo 'Page created, setting as homepage' . PHP_EOL;",
       "capture": true
     },
     {
@@ -65,7 +65,7 @@
     },
     {
       "step": "runPHP",
-      "code": "echo 'Blueprint finished';",
+      "code": "echo 'Blueprint finished' . PHP_EOL;",
       "capture": true
     }
   ]
