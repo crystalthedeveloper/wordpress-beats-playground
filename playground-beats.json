@@ -19,7 +19,9 @@
       "plugins": [
         {
           "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main",
-          "pluginData": { "slug": "beats-upload-player" }
+          "pluginData": {
+            "slug": "beats-upload-player"
+          }
         }
       ]
     },
@@ -32,11 +34,6 @@
     {
       "step": "activatePlugin",
       "plugin": "beats-upload-player/beats-upload-player.php"
-    },
-
-    {
-      "step": "log",
-      "message": "📝 Creating demo page…"
     },
 
     {
