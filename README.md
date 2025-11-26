@@ -50,14 +50,8 @@ The `playground-beats.json` file defines every automated step:
       "pluginPath": "beats-upload-player/beats-upload-player.php"
     },
     {
-      "step": "createPost",
-      "title": "Beats Playground",
-      "slug": "beats-playground",
-      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
-    },
-    {
-      "step": "setHomepage",
-      "pageId": "{{posts.beats-playground}}"
+      "step": "runPHP",
+      "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\n\n$page_args = array(\n    'post_title'   => 'Beats Playground',\n    'post_name'    => 'beats-playground',\n    'post_status'  => 'publish',\n    'post_type'    => 'page',\n    'post_content' => '<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->'\n);\n\n$existing = get_page_by_path( $page_args['post_name'], OBJECT, 'page' );\nif ( $existing ) {\n    $page_args['ID'] = $existing->ID;\n    $page_id = wp_update_post( $page_args );\n} else {\n    $page_id = wp_insert_post( $page_args );\n}\n\nupdate_option( 'show_on_front', 'page' );\nupdate_option( 'page_on_front', $page_id );"
     }
   ]
 }
@@ -65,8 +59,7 @@ The `playground-beats.json` file defines every automated step:
 
 - **Plugin bundle:** downloads `assets/beats-upload-player.zip` from this repo and unzips it into `/wp-content/plugins`.  
 - **Activation:** ensures the plugin is ready the moment Playground boots and renders the shortcode immediately.  
-- **Demo page:** renders the `[beats_player_demo]` shortcode inside a Block Editor shortcode block.  
-- **Homepage:** the newly created “Beats Playground” page becomes the front page so the demo loads immediately.
+- **Demo page + homepage:** a `runPHP` step inserts (or updates) the Beats Playground page and assigns it as the front page so the shortcode loads immediately.
 
 ---
 
@@ -78,7 +71,7 @@ The `playground-beats.json` file defines every automated step:
 
 ### Adding the Beats Visualizer (optional)
 
-If you want the page to showcase the Beats Visualizer plugin too, bundle its ZIP (for example `assets/beats-visualizer.zip`), add another `unzip` step that extracts to `/wordpress/wp-content/plugins/`, and then add an `activatePlugin` step targeting `beats-visualizer/beats-visualizer.php` before the `createPost` block.
+If you want the page to showcase the Beats Visualizer plugin too, bundle its ZIP (for example `assets/beats-visualizer.zip`), add another `unzip` step that extracts to `/wordpress/wp-content/plugins/`, and then add an `activatePlugin` step targeting `beats-visualizer/beats-visualizer.php` before the `runPHP` page-creation block.
 
 Then reference its shortcode inside the page content, e.g.:
 

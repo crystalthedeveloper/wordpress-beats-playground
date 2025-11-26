@@ -22,17 +22,9 @@
       "step": "activatePlugin",
       "pluginPath": "beats-upload-player/beats-upload-player.php"
     },
-
     {
-      "step": "createPost",
-      "title": "Beats Playground",
-      "slug": "beats-playground",
-      "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
-    },
-
-    {
-      "step": "setHomepage",
-      "pageId": "{{posts.beats-playground}}"
+      "step": "runPHP",
+      "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\n\n$page_args = array(\n    'post_title'   => 'Beats Playground',\n    'post_name'    => 'beats-playground',\n    'post_status'  => 'publish',\n    'post_type'    => 'page',\n    'post_content' => '<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->'\n);\n\n$existing = get_page_by_path( $page_args['post_name'], OBJECT, 'page' );\nif ( $existing ) {\n    $page_args['ID'] = $existing->ID;\n    $page_id = wp_update_post( $page_args );\n} else {\n    $page_id = wp_insert_post( $page_args );\n}\n\nupdate_option( 'show_on_front', 'page' );\nupdate_option( 'page_on_front', $page_id );\n\necho 'Beats Playground page ready with ID ' . $page_id . PHP_EOL;"
     }
   ]
 }
