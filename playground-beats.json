@@ -1,60 +1,74 @@
 {
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+
   "landingPage": "/beats-playground/",
+
   "preferredVersions": {
     "php": "8.2",
     "wp": "6.5"
   },
+
   "steps": [
     {
       "step": "runPHP",
-      "code": "echo 'Blueprint started' . PHP_EOL;"
+      "code": "echo 'Blueprint started';"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Downloading plugin ZIP' . PHP_EOL;"
+      "code": "echo 'Downloading plugin ZIP...';"
     },
+
     {
       "step": "installPlugin",
       "pluginZipUrl": "https://codeload.github.com/crystalthedeveloper/wordpress-plugin-beats-upload-player/zip/refs/heads/main"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Plugin ZIP installed' . PHP_EOL;"
+      "code": "echo 'Plugin ZIP installed';"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Activating plugin' . PHP_EOL;"
+      "code": "echo 'Activating plugin...';"
     },
+
     {
       "step": "activatePlugin",
-      "plugin": "wordpress-plugin-beats-upload-player-main/beats-upload-player.php"
+      "plugin": "beats-upload-player/beats-upload-player.php"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Plugin activated' . PHP_EOL;"
+      "code": "echo 'Plugin activated';"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Creating Beats Playground page' . PHP_EOL;"
+      "code": "echo 'Creating Beats Playground page...';"
     },
+
     {
       "step": "createPost",
       "title": "Beats Playground",
       "slug": "beats-playground",
       "content": "<!-- wp:shortcode -->[beats_player_demo]<!-- /wp:shortcode -->"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Page created, setting as homepage' . PHP_EOL;"
+      "code": "echo 'Setting homepage';"
     },
+
     {
       "step": "setHomepage",
       "pageId": "{{posts.beats-playground}}"
     },
+
     {
       "step": "runPHP",
-      "code": "echo 'Blueprint finished' . PHP_EOL;"
+      "code": "echo 'Blueprint finished';"
     }
   ]
 }
