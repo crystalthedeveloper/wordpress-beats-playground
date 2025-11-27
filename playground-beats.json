@@ -20,6 +20,14 @@
       "extractToPath": "/wordpress/wp-content/plugins/"
     },
     {
+      "step": "defineWpConfigConsts",
+      "consts": {
+        "WP_ENVIRONMENT_TYPE": "playground",
+        "WP_PLAYGROUND": true,
+        "IS_PLAYGROUND": true
+      }
+    },
+    {
       "step": "runPHP",
       "code": "echo 'Plugin files extracted to wp-content/plugins.' . PHP_EOL;"
     },

@@ -51,6 +51,14 @@ The `playground-beats.json` file defines every automated step:
       "extractToPath": "/wordpress/wp-content/plugins/"
     },
     {
+      "step": "defineWpConfigConsts",
+      "consts": {
+        "WP_ENVIRONMENT_TYPE": "playground",
+        "WP_PLAYGROUND": true,
+        "IS_PLAYGROUND": true
+      }
+    },
+    {
       "step": "runPHP",
       "code": "echo 'Plugin files extracted to wp-content/plugins.' . PHP_EOL;"
     },
@@ -81,6 +89,7 @@ The `playground-beats.json` file defines every automated step:
 
 - **Plugin bundle:** downloads the ZIP stored in `assets/`, unzips it locally, and logs progress to the console.  
 - **Activation:** turns on Beats Upload Player before any content renders and then switches to the Twenty Twenty-Five block theme.  
+- **Environment flag:** `WP_ENVIRONMENT_TYPE`, `WP_PLAYGROUND`, and `IS_PLAYGROUND` are defined in `wp-config.php` so the plugin knows it’s running inside Playground and seeds the demo `beats.json` library automatically.  
 - **Template override:** the stock `front-page` template is fetched from the theme, its `<main>` block is replaced with the rendered shortcode HTML (generated via `do_shortcode()` during the bootstrap), and the modified template is saved as a `wp_template` post tied to Twenty Twenty-Five.  
 - **Landing page:** no pages are created—when Playground hits `/`, the updated front-page template already contains the Beats markup, so the header/nav/footer stay intact and the Beats JS instantly finds `#beats-wrapper`.
 
