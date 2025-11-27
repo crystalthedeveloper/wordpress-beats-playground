@@ -62,6 +62,15 @@ The `playground-beats.json` file defines every automated step:
       "code": "echo 'Beats Upload Player activated.' . PHP_EOL;"
     },
     {
+      "step": "writeFile",
+      "path": "/wordpress/wp-content/themes/twentytwentyfour/templates/front-page.html",
+      "data": "<!-- wp:template-part {\"slug\":\"header\",\"tagName\":\"header\"} /-->\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:0;padding-bottom:0\">\n<!-- wp:post-content {\"layout\":{\"type\":\"constrained\"}} /-->\n</main>\n<!-- /wp:group -->\n<!-- wp:template-part {\"slug\":\"footer\",\"tagName\":\"footer\"} /-->\n"
+    },
+    {
+      "step": "runPHP",
+      "code": "echo 'Front-page template switched to a content-only layout.' . PHP_EOL;"
+    },
+    {
       "step": "runPHP",
       "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\nrequire_once ABSPATH . 'wp-admin/includes/misc.php';\nrequire_once ABSPATH . 'wp-admin/includes/rewrite.php';\n\n$content = <<<'HTML'\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">\n<!-- wp:group {\"align\":\"wide\",\"anchor\":\"beats-wrapper\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"20px\",\"right\":\"20px\",\"bottom\":\"20px\",\"left\":\"20px\"}},\"border\":{\"radius\":\"16px\",\"color\":\"#f1f1f1\",\"width\":\"1px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignwide\" id=\"beats-wrapper\" style=\"border-color:#f1f1f1;border-width:1px;border-radius:16px;margin-top:0;margin-bottom:0;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px\">\n<!-- wp:heading {\"textAlign\":\"center\"} -->\n<h2 class=\"wp-block-heading has-text-align-center\">Beats</h2>\n<!-- /wp:heading -->\n<!-- wp:paragraph {\"align\":\"center\"} -->\n<p class=\"has-text-align-center\">Preview every Beats shortcode below.</p>\n<!-- /wp:paragraph -->\n<!-- wp:group {\"style\":{\"spacing\":{\"blockGap\":\"12px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"gap:12px\">\n<!-- wp:shortcode -->[beats_category_search]<!-- /wp:shortcode -->\n<!-- wp:shortcode -->[beats_visualizer]<!-- /wp:shortcode -->\n<!-- wp:shortcode -->[beats_display_home]<!-- /wp:shortcode -->\n<!-- wp:shortcode -->[beats_global_player]<!-- /wp:shortcode -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</main>\n<!-- /wp:group -->\nHTML;\n\n$page_args = array(\n    'post_title'   => 'Beats',\n    'post_name'    => 'beats-playground',\n    'post_status'  => 'publish',\n    'post_type'    => 'page',\n    'post_content' => $content\n);\n\n$existing = get_page_by_path( $page_args['post_name'], OBJECT, 'page' );\nif ( $existing ) {\n    $page_args['ID'] = $existing->ID;\n    $page_id = wp_update_post( $page_args );\n} else {\n    $page_id = wp_insert_post( $page_args );\n}\n\nif ( is_wp_error( $page_id ) ) {\n    echo 'Failed to create Beats homepage: ' . $page_id->get_error_message() . PHP_EOL;\n} else {\n    update_option( 'show_on_front', 'page' );\n    update_option( 'page_on_front', $page_id );\n    update_option( 'page_for_posts', 0 );\n    update_option( 'permalink_structure', '/%postname%/' );\n    flush_rewrite_rules( true );\n    $primed = wp_remote_get( home_url( '/beats-playground/?t=' . time() ) );\n    if ( is_wp_error( $primed ) ) {\n        echo 'Homepage priming request failed: ' . $primed->get_error_message() . PHP_EOL;\n    } else {\n        echo 'Homepage primed successfully.' . PHP_EOL;\n    }\n    echo 'Beats homepage ready at /beats-playground/ (ID ' . $page_id . ').' . PHP_EOL;\n}"
     },
@@ -75,6 +84,7 @@ The `playground-beats.json` file defines every automated step:
 
 - **Plugin bundle:** downloads the ZIP stored in `assets/`, unzips it locally, and logs progress to the console.  
 - **Activation:** turns on Beats Upload Player before any content renders and logs confirmation.  
+- **Template override:** the default Twenty Twenty-Four `front-page` template is replaced with a slim header/main/footer wrapper so the Beats shortcodes sit directly in the page body.  
 - **Landing page:** a `runPHP` step creates/updates the Beats homepage (complete with the `#beats-wrapper` anchor), sets it as the front page, flushes permalinks, primes `/beats-playground/`, and prints status messages so you can confirm everything ran.
 
 ---
