@@ -31,12 +31,16 @@ The `playground-beats.json` file defines every automated step:
 ```json
 {
   "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-  "landingPage": "/",
+  "landingPage": "/beats-playground/",
   "preferredVersions": {
     "php": "8.2",
-    "wp": "6.5"
+    "wp": "latest"
   },
   "steps": [
+    {
+      "step": "runPHP",
+      "code": "echo 'Starting Beats Playground bootstrap...' . PHP_EOL;"
+    },
     {
       "step": "unzip",
       "zipFile": {
@@ -46,25 +50,32 @@ The `playground-beats.json` file defines every automated step:
       "extractToPath": "/wordpress/wp-content/plugins/"
     },
     {
+      "step": "runPHP",
+      "code": "echo 'Plugin files extracted to wp-content/plugins.' . PHP_EOL;"
+    },
+    {
       "step": "activatePlugin",
       "pluginPath": "beats-upload-player/beats-upload-player.php"
     },
     {
-      "step": "writeFile",
-      "path": "/wordpress/wp-content/themes/twentytwentyfour/page-beats-template.php",
-      "data": "<?php\n/**\n * Template Name: Beats Playground Template\n */\nget_header();\n?>\n<main id=\"primary\" class=\"site-main\">\n    <div id=\"beats-wrapper\" class=\"beats-wrapper\" style=\"max-width:900px;margin:0 auto;padding:40px 20px;text-align:center;display:flex;flex-direction:column;gap:18px;\">\n        <h1 style=\"font-size:54px;font-weight:700;margin:0;\">Beats Playground</h1>\n        <p style=\"font-size:16px;\">Preview the Beats shortcodes below.</p>\n        <div class=\"beats-shortcodes\" style=\"display:flex;flex-direction:column;gap:18px;\">\n            <?php echo do_shortcode( '[beats_category_search]' ); ?>\n            <?php echo do_shortcode( '[beats_visualizer]' ); ?>\n            <?php echo do_shortcode( '[beats_display_home]' ); ?>\n            <?php echo do_shortcode( '[beats_global_player]' ); ?>\n        </div>\n        <p style=\"font-size:14px;margin-top:20px;\">&copy; Beats Playground</p>\n    </div>\n</main>\n<?php\nget_footer();"
+      "step": "runPHP",
+      "code": "echo 'Beats Upload Player activated.' . PHP_EOL;"
     },
     {
       "step": "runPHP",
-      "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\nrequire_once ABSPATH . 'wp-admin/includes/misc.php';\n\n$page_args = array(\n    'post_title'   => 'Beats Playground',\n    'post_name'    => 'beats-playground',\n    'post_status'  => 'publish',\n    'post_type'    => 'page',\n    'post_content' => '<!-- wp:shortcode -->[beats_global_player]<!-- /wp:shortcode -->',\n    'meta_input'   => array(\n        '_wp_page_template' => 'page-beats-template.php'\n    )\n);\n\n$existing = get_page_by_path( $page_args['post_name'], OBJECT, 'page' );\nif ( $existing ) {\n    $page_args['ID'] = $existing->ID;\n    $page_id = wp_update_post( $page_args );\n} else {\n    $page_id = wp_insert_post( $page_args );\n}\n\nupdate_option( 'show_on_front', 'page' );\nupdate_option( 'page_on_front', $page_id );\nflush_rewrite_rules();\nwp_safe_redirect( home_url( '/beats-playground/' ) );"
+      "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\nrequire_once ABSPATH . 'wp-admin/includes/misc.php';\nrequire_once ABSPATH . 'wp-admin/includes/rewrite.php';\n\n$content = <<<'HTML'\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">\n<!-- wp:group {\"align\":\"wide\",\"anchor\":\"beats-wrapper\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"padding\":{\"top\":\"20px\",\"right\":\"20px\",\"bottom\":\"20px\",\"left\":\"20px\"}},\"border\":{\"radius\":\"16px\",\"color\":\"#f1f1f1\",\"width\":\"1px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignwide\" id=\"beats-wrapper\" style=\"border-color:#f1f1f1;border-width:1px;border-radius:16px;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px\">\n<!-- wp:heading {\"textAlign\":\"center\"} -->\n<h2 class=\"wp-block-heading has-text-align-center\">Beats</h2>\n<!-- /wp:heading -->\n<!-- wp:paragraph {\"align\":\"center\"} -->\n<p class=\"has-text-align-center\">Preview every Beats shortcode below.</p>\n<!-- /wp:paragraph -->\n<!-- wp:group {\"style\":{\"spacing\":{\"blockGap\":\"18px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"gap:18px\">\n<!-- wp:shortcode -->[beats_category_search]<!-- /wp:shortcode -->\n<!-- wp:shortcode -->[beats_visualizer]<!-- /wp:shortcode -->\n<!-- wp:shortcode -->[beats_display_home]<!-- /wp:shortcode -->\n<!-- wp:shortcode -->[beats_global_player]<!-- /wp:shortcode -->\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</main>\n<!-- /wp:group -->\nHTML;\n\n$page_args = array(\n    'post_title'   => 'Beats',\n    'post_name'    => 'beats-playground',\n    'post_status'  => 'publish',\n    'post_type'    => 'page',\n    'post_content' => $content\n);\n\n$existing = get_page_by_path( $page_args['post_name'], OBJECT, 'page' );\nif ( $existing ) {\n    $page_args['ID'] = $existing->ID;\n    $page_id = wp_update_post( $page_args );\n} else {\n    $page_id = wp_insert_post( $page_args );\n}\n\nif ( is_wp_error( $page_id ) ) {\n    echo 'Failed to create Beats homepage: ' . $page_id->get_error_message() . PHP_EOL;\n} else {\n    update_option( 'show_on_front', 'page' );\n    update_option( 'page_on_front', $page_id );\n    update_option( 'page_for_posts', 0 );\n    flush_rewrite_rules();\n    $primed = wp_remote_get( home_url( '/beats-playground/' ) );\n    if ( is_wp_error( $primed ) ) {\n        echo 'Homepage priming request failed: ' . $primed->get_error_message() . PHP_EOL;\n    } else {\n        echo 'Homepage primed successfully.' . PHP_EOL;\n    }\n    echo 'Beats homepage ready at /beats-playground/ (ID ' . $page_id . ').' . PHP_EOL;\n}"
+    },
+    {
+      "step": "runPHP",
+      "code": "echo 'Beats Playground bootstrap complete.' . PHP_EOL;"
     }
   ]
 }
 ```
 
-- **Plugin bundle:** downloads `assets/beats-upload-player.zip` from this repo and unzips it into `/wp-content/plugins`.  
-- **Activation:** ensures the plugin is ready the moment Playground boots.  
-- **Landing page:** a `runPHP` step creates/updates the Beats Playground page, sets it as the homepage, flushes rewrite rules, and redirects to `/beats-playground/` so the service worker doesn’t cache a 404 before the shortcodes render.
+- **Plugin bundle:** downloads the ZIP stored in `assets/`, unzips it locally, and logs progress to the console.  
+- **Activation:** turns on Beats Upload Player before any content renders and logs confirmation.  
+- **Landing page:** a `runPHP` step creates/updates the Beats homepage (complete with the `#beats-wrapper` anchor), sets it as the front page, flushes permalinks, primes `/beats-playground/`, and prints status messages so you can confirm everything ran.
 
 ---
 
