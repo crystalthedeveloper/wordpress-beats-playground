@@ -32,6 +32,10 @@
       "code": "echo 'Beats Upload Player activated.' . PHP_EOL;"
     },
     {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/themes/twentytwentyfour/templates"
+    },
+    {
       "step": "writeFile",
       "path": "/wordpress/wp-content/themes/twentytwentyfour/templates/front-page.html",
       "data": "<!-- wp:template-part {\"slug\":\"header\",\"tagName\":\"header\"} /-->\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:0;padding-bottom:0\">\n<!-- wp:post-content {\"layout\":{\"type\":\"constrained\"}} /-->\n</main>\n<!-- /wp:group -->\n<!-- wp:template-part {\"slug\":\"footer\",\"tagName\":\"footer\"} /-->\n"
