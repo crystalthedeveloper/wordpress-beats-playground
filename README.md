@@ -62,17 +62,8 @@ The `playground-beats.json` file defines every automated step:
       "code": "echo 'Beats Upload Player activated.' . PHP_EOL;"
     },
     {
-      "step": "mkdir",
-      "path": "/wordpress/wp-content/themes/twentytwentyfour/templates"
-    },
-    {
-      "step": "writeFile",
-      "path": "/wordpress/wp-content/themes/twentytwentyfour/templates/front-page.html",
-      "data": "<!-- wp:template-part {\"slug\":\"header\",\"tagName\":\"header\"} /-->\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:0;padding-bottom:0\">\n<!-- wp:post-content {\"layout\":{\"type\":\"constrained\"}} /-->\n</main>\n<!-- /wp:group -->\n<!-- wp:template-part {\"slug\":\"footer\",\"tagName\":\"footer\"} /-->\n"
-    },
-    {
       "step": "runPHP",
-      "code": "echo 'Front-page template switched to a content-only layout.' . PHP_EOL;"
+      "code": "$template_contents = <<<'HTML'\n<!-- wp:template-part {\"slug\":\"header\",\"tagName\":\"header\"} /-->\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:0;padding-bottom:0\">\n<!-- wp:post-content {\"layout\":{\"type\":\"constrained\"}} /-->\n</main>\n<!-- /wp:group -->\n<!-- wp:template-part {\"slug\":\"footer\",\"tagName\":\"footer\"} /-->\nHTML;\n\n$templates_dir = trailingslashit( get_theme_root() ) . 'twentytwentyfour/templates';\nif ( ! file_exists( $templates_dir ) ) {\n    wp_mkdir_p( $templates_dir );\n}\n\n$file = $templates_dir . '/front-page.html';\nif ( false === file_put_contents( $file, $template_contents ) ) {\n    echo 'Failed to write custom front-page template.' . PHP_EOL;\n} else {\n    echo 'Custom front-page template saved to ' . $file . PHP_EOL;\n}"
     },
     {
       "step": "runPHP",
