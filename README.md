@@ -34,13 +34,9 @@ The `playground-beats.json` file defines every automated step:
   "landingPage": "/",
   "preferredVersions": {
     "php": "8.2",
-    "wp": "latest"
+    "wp": "6.8"
   },
   "steps": [
-    {
-      "step": "runPHP",
-      "code": "echo 'Starting Beats Playground bootstrap...' . PHP_EOL;"
-    },
     {
       "step": "unzip",
       "zipFile": {
@@ -59,16 +55,8 @@ The `playground-beats.json` file defines every automated step:
       }
     },
     {
-      "step": "runPHP",
-      "code": "echo 'Plugin files extracted to wp-content/plugins.' . PHP_EOL;"
-    },
-    {
       "step": "activatePlugin",
       "pluginPath": "beats-upload-player/beats-upload-player.php"
-    },
-    {
-      "step": "runPHP",
-      "code": "echo 'Beats Upload Player activated.' . PHP_EOL;"
     },
     {
       "step": "activateTheme",
@@ -76,13 +64,7 @@ The `playground-beats.json` file defines every automated step:
     },
     {
       "step": "runPHP",
-      "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\nrequire_once ABSPATH . 'wp-admin/includes/theme.php';\n\n$template_html = '';\n$paths_to_try = array(\n    'templates/home.html',\n    'templates/front-page.html',\n    'templates/index.html'\n);\nforeach ( $paths_to_try as $relative_path ) {\n    $maybe = get_theme_file_path( $relative_path );\n    if ( file_exists( $maybe ) ) {\n        $template_html = file_get_contents( $maybe );\n        break;\n    }\n}\n\n$category_html      = do_shortcode( '[beats_category_search]' );\n$visualizer_html    = do_shortcode( '[beats_visualizer]' );\n$display_home_html  = do_shortcode( '[beats_display_home]' );\n$global_player_html = do_shortcode( '[beats_global_player]' );\n\n$beats_section = <<<'HTML'\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">\n<!-- wp:group {\"align\":\"wide\",\"anchor\":\"beats-wrapper\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"20px\",\"right\":\"20px\",\"bottom\":\"20px\",\"left\":\"20px\"}},\"border\":{\"radius\":\"16px\",\"color\":\"#f1f1f1\",\"width\":\"1px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignwide\" id=\"beats-wrapper\" style=\"border-color:#f1f1f1;border-width:1px;border-radius:16px;margin-top:0;margin-bottom:0;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px\">\n<!-- wp:heading {\"textAlign\":\"center\"} -->\n<h2 class=\"wp-block-heading has-text-align-center\">Beats</h2>\n<!-- /wp:heading -->\n<!-- wp:paragraph {\"align\":\"center\"} -->\n<p class=\"has-text-align-center\">Preview every Beats shortcode below.</p>\n<!-- /wp:paragraph -->\n<!-- wp:group {\"style\":{\"spacing\":{\"blockGap\":\"12px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"gap:12px\">\n$category_html\n$visualizer_html\n$display_home_html\n$global_player_html\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</main>\n<!-- /wp:group -->\nHTML;\n\n$pattern = '/<!-- wp:group {\"tagName\":\"main\".*?<!-- \\/wp:group -->/s';\nif ( $template_html && preg_match( $pattern, $template_html ) ) {\n    $updated_template = preg_replace( $pattern, $beats_section, $template_html, 1 );\n} else {\n    $updated_template = $beats_section;\n}\n\n$theme       = wp_get_theme();\n$theme_slug  = $theme->get_stylesheet();\n$template_id = sprintf( '%s//home', $theme_slug );\n\n$template_args = array(\n    'post_title'   => 'Home',\n    'post_name'    => $template_id,\n    'post_status'  => 'publish',\n    'post_type'    => 'wp_template',\n    'post_content' => $updated_template,\n    'meta_input'   => array(\n        'origin' => 'custom'\n    )\n);\n\n$existing_template = get_page_by_path( $template_id, OBJECT, 'wp_template' );\nif ( $existing_template ) {\n    $template_args['ID'] = $existing_template->ID;\n    $saved_id            = wp_update_post( $template_args );\n} else {\n    $saved_id = wp_insert_post( $template_args );\n}\n\nif ( ! is_wp_error( $saved_id ) ) {\n    wp_set_post_terms( $saved_id, $theme_slug, 'wp_theme' );\n    echo 'Home template updated (post ID ' . $saved_id . ').' . PHP_EOL;\n} else {\n    echo 'Failed to update home template: ' . $saved_id->get_error_message() . PHP_EOL;\n}"
-    },
-    {
-      "step": "runPHP",
-      "code": "echo 'Beats Playground bootstrap complete.' . PHP_EOL;"
-    }
-  ]
+      "code": "require_once ABSPATH . 'wp-admin/includes/post.php';\nrequire_once ABSPATH . 'wp-admin/includes/theme.php';\nrequire_once ABSPATH . 'wp-admin/includes/template.php';\n\nif ( function_exists( 'beats_prime_data' ) ) {\n    beats_prime_data();\n} elseif ( function_exists( 'beats_seed_playground_demo' ) ) {\n    beats_seed_playground_demo();\n}\n\n$category_html      = do_shortcode( '[beats_category_search]' );\n$visualizer_html    = do_shortcode( '[beats_visualizer]' );\n$display_home_html  = do_shortcode( '[beats_display_home]' );\n$global_player_html = do_shortcode( '[beats_global_player]' );\n\n$beats_section = <<<'HTML'\n<!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->\n<main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">\n<!-- wp:group {\"align\":\"wide\",\"anchor\":\"beats-wrapper\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"20px\",\"right\":\"20px\",\"bottom\":\"20px\",\"left\":\"20px\"}},\"border\":{\"radius\":\"16px\",\"color\":\"#f1f1f1\",\"width\":\"1px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group alignwide\" id=\"beats-wrapper\" style=\"border-color:#f1f1f1;border-width:1px;border-radius:16px;margin-top:0;margin-bottom:0;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px\">\n<!-- wp:heading {\"textAlign\":\"center\"} -->\n<h2 class=\"wp-block-heading has-text-align-center\">Beats</h2>\n<!-- /wp:heading -->\n<!-- wp:paragraph {\"align\":\"center\"} -->\n<p class=\"has-text-align-center\">Preview every Beats shortcode below.</p>\n<!-- /wp:paragraph -->\n<!-- wp:group {\"style\":{\"spacing\":{\"blockGap\":\"12px\"}},\"layout\":{\"type\":\"constrained\"}} -->\n<div class=\"wp-block-group\" style=\"gap:12px\">\n$category_html\n$visualizer_html\n$display_home_html\n$global_player_html\n</div>\n<!-- /wp:group -->\n</div>\n<!-- /wp:group -->\n</main>\n<!-- /wp:group -->\nHTML;\n\n$theme      = wp_get_theme();\n$theme_slug = $theme->get_stylesheet();\n$templates  = array( 'home', 'front-page', 'index' );\n\n$group_pattern = '/<!-- wp:group\\b[^>]*-->\\s*<main\\b.*?<\\/main>\\s*<!-- \\/wp:group -->/is';\n\nforeach ( $templates as $template_slug ) {\n    $template_id   = sprintf( '%s//%s', $theme_slug, $template_slug );\n    $template_html = '';\n\n    if ( function_exists( 'get_block_template' ) ) {\n        $block_template = get_block_template( $template_id, 'wp_template' );\n        if ( $block_template && ! empty( $block_template->content ) ) {\n            $template_html = $block_template->content;\n        }\n    }\n\n    if ( ! $template_html ) {\n        $template_path = get_theme_file_path( 'templates/' . $template_slug . '.html' );\n        if ( file_exists( $template_path ) ) {\n            $template_html = file_get_contents( $template_path );\n        }\n    }\n\n    if ( ! $template_html ) {\n        $template_html = '<!-- wp:template-part {\"slug\":\"header\",\"area\":\"header\"} /-->' . $beats_section . '<!-- wp:template-part {\"slug\":\"footer\",\"area\":\"footer\"} /-->';\n    }\n\n    if ( $template_html && preg_match( $group_pattern, $template_html ) ) {\n        $updated_template = preg_replace( $group_pattern, $beats_section, $template_html, 1 );\n    } else {\n        $updated_template = $beats_section;\n    }\n\n    $template_args = array(\n        'post_title'   => ucwords( str_replace( '-', ' ', $template_slug ) ),\n        'post_name'    => $template_id,\n        'post_status'  => 'publish',\n        'post_type'    => 'wp_template',\n        'post_content' => $updated_template,\n        'meta_input'   => array(\n            'origin' => 'custom'\n        )\n    );\n\n    $existing_template = get_page_by_path( $template_id, OBJECT, 'wp_template' );\n    if ( $existing_template ) {\n        $template_args['ID'] = $existing_template->ID;\n        $saved_id            = wp_update_post( $template_args );\n    } else {\n        $saved_id = wp_insert_post( $template_args );\n    }\n\n    if ( ! is_wp_error( $saved_id ) ) {\n        wp_set_post_terms( $saved_id, $theme_slug, 'wp_theme' );\n        echo ucfirst( $template_slug ) . ' template updated (post ID ' . $saved_id . ').' . PHP_EOL;\n    } else {\n        echo 'Failed to update ' . $template_slug . ' template: ' . $saved_id->get_error_message() . PHP_EOL;\n    }\n}\n"\n    }\n  ]\n }
 }
 ```
 
@@ -91,7 +73,7 @@ The `playground-beats.json` file defines every automated step:
 - **Plugin bundle:** downloads the ZIP stored in `assets/`, unzips it locally, and logs progress to the console.  
 - **Activation:** turns on Beats Upload Player before any content renders and then switches to the Twenty Twenty-Five block theme.  
 - **Environment flag:** `WP_ENVIRONMENT_TYPE`, `WP_PLAYGROUND`, and `IS_PLAYGROUND` are defined in `wp-config.php` so the plugin knows it’s running inside Playground and seeds the demo `beats.json` library automatically.  
-- **Template override:** the blueprint loads Twenty Twenty-Five’s `home` (or fallback `front-page`/`index`) template, swaps the `<main>` area with the rendered shortcode HTML (produced server-side via `do_shortcode()`), and saves the result as a `wp_template` post tied to the theme so the Beats content is the actual homepage body.  
+- **Template override:** the blueprint updates the Twenty Twenty-Five `home`, `front-page`, and `index` templates (favoring the existing block template content when possible), swaps the `<main>` area with the fully rendered shortcode HTML, and saves each as a `wp_template` post tied to the theme so the Beats content is always the homepage body.  
 - **Landing page:** no pages are created—when Playground hits `/`, the updated front-page template already contains the Beats markup, so the header/nav/footer stay intact and the Beats JS instantly finds `#beats-wrapper`.
 
 ---
@@ -126,6 +108,10 @@ add_shortcode( 'beats_player_demo', function () {
 ```
 
 Ship an equivalent snippet in each plugin to keep the Playground content clean.
+
+## 🪲 Debug Logging (optional)
+
+The public JS files no longer spam the console by default. If you need verbose tracing, set `window.BEATS_DEBUG = true;` in the browser console (run it before the page reloads so the scripts read the flag) and refresh—both `beats-loader.js` and `beats-player.js` will start emitting the `[Beats Debug]` messages again. Leave the flag unset/false for a clean, production-friendly console.
 
 ---
 
