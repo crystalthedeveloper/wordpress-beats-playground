@@ -76,7 +76,7 @@ The `playground-beats.json` file defines every automated step:
 - **Activation:** turns on Beats Upload Player before any content renders and then switches to the Twenty Twenty-Five block theme.  
 - **Environment flag:** `WP_ENVIRONMENT_TYPE`, `WP_PLAYGROUND`, and `IS_PLAYGROUND` are defined in `wp-config.php` so the plugin knows it’s running inside Playground and seeds the demo `beats.json` library automatically.  
 - **Template override:** the blueprint now creates a physical “Beats Demo” page that contains the shortcode blocks (`[beats_category_search]`, `[beats_visualizer]`, `[beats_display_home]`, `[beats_global_player]`) and assigns it as the static front page via `page_on_front`, so the Beats UI executes immediately on load and is editable like any other page.  
-- **Landing page:** no pages are created—when Playground hits `/`, the updated front-page template already contains the Beats markup, so the header/nav/footer stay intact and the Beats JS instantly finds `#beats-wrapper`.
+- **Landing page:** the blueprint creates/publishes the “Beats Demo” page and sets it as `page_on_front`, so when Playground hits `/` the shortcode blocks render immediately and Beats JS instantly finds `#beats-wrapper`.
 
 ---
 
