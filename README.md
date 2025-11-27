@@ -16,6 +16,12 @@ This repository houses a **WordPress Playground configuration** that spins up a 
 
 ---
 
+### VS Code Playground Server (local)
+
+Prefer running the [WordPress Playground VS Code extension](https://marketplace.visualstudio.com/items?itemName=wordpress.playground)? Open this repo in VS Code, start the Playground server (the sidebar screenshot above), and visit `http://localhost:8881`. When the plugin activates it detects the `playground` environment (`WP_PLAYGROUND`, `IS_PLAYGROUND`, or `wp_get_environment_type()`), auto-creates the **Beats Demo** page, and sets it as the static home—no blueprint URL required.
+
+---
+
 ## 📁 Repository Contents
 
 - `README.md` — Documentation for launching and customizing the Playground experience.  
