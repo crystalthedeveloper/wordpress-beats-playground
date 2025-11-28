@@ -93,7 +93,7 @@ if ( function_exists( 'beats_prime_data' ) ) {
 $beats_content = <<<HTML
 <!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->
 <main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">
-<!-- wp:group {\"align\":\"full\",\"anchor\":\"beats-wrapper\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"24px\",\"right\":\"24px\",\"bottom\":\"24px\",\"left\":\"24px\"}},\"border\":{\"radius\":\"16px\",\"color\":\"#f1f1f1\",\"width\":\"1px\"}},\"layout\":{\"type\":\"constrained\"}} -->
+<!-- wp:group {\"align\":\"full\",\"anchor\":\"beats-wrapper\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"24px\",\"right\":\"24px\",\"bottom\":\"24px\",\"left\":\"24px\"}},\"border\":{\"radius\":\"16px\"}},\"layout\":{\"type\":\"constrained\"}} -->
 <div class=\"wp-block-group alignfull\" id=\"beats-wrapper\" style=\"border:none;border-radius:16px;margin-top:0;margin-bottom:0;padding-top:24px;padding-right:24px;padding-bottom:24px;padding-left:24px\">
 <!-- wp:paragraph {\"align\":\"center\"} -->
 <p class=\"has-text-align-center\">Preview the Beats library and player below.</p>
@@ -161,7 +161,7 @@ if ( ! is_wp_error( $page_id ) ) {
 $upload_content = <<<HTML
 <!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->
 <main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">
-<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"24px\",\"right\":\"24px\",\"bottom\":\"24px\",\"left\":\"24px\"}},\"border\":{\"radius\":\"16px\",\"color\":\"#f1f1f1\",\"width\":\"1px\"}},\"layout\":{\"type\":\"constrained\"}} -->
+<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"blockGap\":\"18px\",\"margin\":{\"top\":\"0\",\"bottom\":\"0\"},\"padding\":{\"top\":\"24px\",\"right\":\"24px\",\"bottom\":\"24px\",\"left\":\"24px\"}},\"border\":{\"radius\":\"16px\"}},\"layout\":{\"type\":\"constrained\"}} -->
 <div class=\"wp-block-group alignfull\" style=\"border:none;border-radius:16px;margin-top:0;margin-bottom:0;padding-top:24px;padding-right:24px;padding-bottom:24px;padding-left:24px\">
 <!-- wp:heading {\"textAlign\":\"center\"} -->
 <h2 class=\"wp-block-heading has-text-align-center\">Upload</h2>
@@ -208,9 +208,9 @@ if ( is_wp_error( $upload_id ) ) {
     error_log('[Beats Blueprint] Upload page ready (post ID ' . $upload_id . ').');
 }
 
-add_filter( \'render_block_core/post-title\', function( $block_content, $block ) {
+add_filter( 'render_block_core/post-title', function( $block_content, $block ) {
     if ( is_front_page() ) {
-        return \'\';
+        return '';
     }
 
     return $block_content;
@@ -258,7 +258,6 @@ if ( ! empty( $wp_navigation ) ) {
     }
   ]
 }
-
 ```
 
 
