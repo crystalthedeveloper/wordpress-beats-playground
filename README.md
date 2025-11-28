@@ -210,7 +210,7 @@ if ( is_wp_error( $upload_id ) ) {
 }
 
 add_action( 'wp_head', function() {
-    echo '<style>#beats-wrapper{border:none!important;box-shadow:none!important;}#beats-wrapper .wp-block-group{border:none!important;box-shadow:none!important;}.wp-block-post-title,h1,.wp-block-site-title,h1.wp-block-site-title{display:none!important;}</style>';
+    echo '<style>#beats-wrapper{border:none!important;box-shadow:none!important;}#beats-wrapper .wp-block-group{border:none!important;box-shadow:none!important;}.wp-block-post-title,h1,.wp-block-site-title,h1.wp-block-site-title{display:none!important;}.beats-search-container{position:sticky;top:24px;z-index:10;}</style>';
 } );
 
 error_log('[Beats Blueprint] runPHP complete');
