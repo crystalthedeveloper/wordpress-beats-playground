@@ -80,7 +80,7 @@ $theme_slug = $theme->get_stylesheet();
 error_log('[Beats Blueprint] theme stylesheet: ' . $theme_slug);
 error_log('[Beats Blueprint] show_on_front before: ' . var_export(get_option('show_on_front', 'unset'), true));
 error_log('[Beats Blueprint] page_on_front before: ' . var_export(get_option('page_on_front', 'unset'), true));
-
+\nif ( ! function_exists( 'beats_normalize_block_markup' ) ) {\n    function beats_normalize_block_markup( $markup ) {\n        if ( function_exists( 'parse_blocks' ) && function_exists( 'serialize_blocks' ) ) {\n            $blocks = parse_blocks( $markup );\n            if ( ! empty( $blocks ) ) {\n                return serialize_blocks( $blocks );\n            }\n        }\n        return $markup;\n    }\n}\n\n
 if ( function_exists( 'beats_prime_data' ) ) {
     beats_prime_data();
     error_log('[Beats Blueprint] beats_prime_data executed');
@@ -112,6 +112,7 @@ $beats_content = <<<HTML
 </main>
 <!-- /wp:group -->
 HTML;
+$beats_content = beats_normalize_block_markup( $beats_content );
 
 $page_args = array(
     'post_title'   => 'Beats Demo',
