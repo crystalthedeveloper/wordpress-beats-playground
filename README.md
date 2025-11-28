@@ -91,112 +91,6 @@ if ( function_exists( 'beats_prime_data' ) ) {
     error_log('[Beats Blueprint] no seeding function available');
 }
 
-if ( ! function_exists( 'beats_filter_navigation_html' ) ) {
-    function beats_filter_navigation_html( $html ) {
-        if ( empty( $html ) ) {
-            return $html;
-        }
-
-        $home_url    = esc_url( home_url( '/' ) );
-        $home_url_no = untrailingslashit( $home_url );
-
-        $html = preg_replace(
-            '/<li[^>]*>\s*<a[^>]*>\s*beats\s+demo\s*<\/a>\s*<\/li>/i',
-            '',
-            $html
-        );
-
-        $home_replaced = false;
-
-        $html = preg_replace_callback(
-            '/<a([^>]*)>(.*?)<\/a>/is',
-            function( $matches ) use ( $home_url, $home_url_no, &$home_replaced ) {
-                $attrs = $matches[1];
-                $text  = trim( wp_strip_all_tags( $matches[2] ) );
-                $href  = '';
-
-                if ( preg_match( '/href\s*=\s*\"([^\"]*)\"/i', $attrs, $href_match ) ) {
-                    $href = untrailingslashit( trim( $href_match[1] ) );
-                }
-
-                if ( $home_replaced ) {
-                    return $matches[0];
-                }
-
-                if ( ! $href || $href === $home_url_no || in_array( strtolower( $text ), array( 'home', 'my wordpress website' ), true ) ) {
-                    $home_replaced = true;
-
-                    if ( preg_match( '/href\s*=\s*\"([^\"]*)\"/i', $attrs ) ) {
-                        $attrs = preg_replace( '/href\s*=\s*\"([^\"]*)\"/i', 'href=\"' . esc_url( $home_url ) . '\"', $attrs, 1 );
-                    } else {
-                        $attrs .= ' href=\"' . esc_url( $home_url ) . '\"';
-                    }
-
-                    return '<a' . $attrs . '>Beats</a>';
-                }
-
-                return $matches[0];
-            },
-            $html
-        );
-
-        if ( ! $home_replaced ) {
-            $beats_item = '<li class=\"wp-block-navigation-item\"><a href=\"' . $home_url . '\">Beats</a></li>';
-            if ( strpos( $html, '</ul>' ) !== false ) {
-                $html = preg_replace( '/<\/ul>/i', $beats_item . '</ul>', $html, 1 );
-            } else {
-                $html = $beats_item . $html;
-            }
-        }
-
-        return $html;
-    }
-}
-
-$header_template = <<<HTML
-<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"20px\",\"bottom\":\"20px\",\"right\":\"24px\",\"left\":\"24px\"}}},\"layout\":{\"type\":\"flex\",\"justifyContent\":\"space-between\",\"flexWrap\":\"wrap\"}} -->
-<div class=\"wp-block-group alignfull\" style=\"padding-top:20px;padding-right:24px;padding-bottom:20px;padding-left:24px\">
-<!-- wp:site-title {\"level\":0,\"style\":{\"typography\":{\"fontWeight\":\"900\"}}} /-->
-<!-- wp:navigation {\"layout\":{\"type\":\"flex\",\"justifyContent\":\"right\",\"flexWrap\":\"wrap\"},\"overlayMenu\":\"never\"} -->
-<!-- wp:navigation-link {\"label\":\"Beats\",\"url\":\"%1$s\",\"kind\":\"custom\"} /-->
-<!-- wp:navigation-link {\"label\":\"Upload\",\"url\":\"%2$s\",\"kind\":\"post-type\",\"type\":\"page\"} /-->
-<!-- /wp:navigation -->
-</div>
-<!-- /wp:group -->
-HTML;
-
-$header_content = sprintf( $header_template, esc_url( home_url( '/' ) ), esc_url( home_url( '/upload/' ) ) );
-$header_slug    = sprintf( '%s//header', $theme_slug );
-
-$header_args = array(
-    'post_title'   => 'Header',
-    'post_name'    => $header_slug,
-    'post_status'  => 'publish',
-    'post_type'    => 'wp_template_part',
-    'post_content' => $header_content,
-    'tax_input'    => array(
-        'wp_theme' => array( $theme_slug ),
-    ),
-    'meta_input'   => array(
-        'origin' => 'beats-blueprint'
-    ),
-);
-
-$existing_header = get_page_by_path( $header_slug, OBJECT, 'wp_template_part' );
-if ( $existing_header ) {
-    $header_args['ID'] = $existing_header->ID;
-    $header_id         = wp_update_post( $header_args );
-} else {
-    $header_id = wp_insert_post( $header_args );
-}
-
-if ( ! is_wp_error( $header_id ) ) {
-    wp_set_post_terms( $header_id, $theme_slug, 'wp_theme' );
-    error_log('[Beats Blueprint] Header template part saved with ID ' . $header_id );
-} else {
-    error_log('[Beats Blueprint] Failed to save header template: ' . $header_id->get_error_message());
-}
-
 $beats_content = <<<HTML
 <!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->
 <main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">
@@ -315,28 +209,9 @@ if ( is_wp_error( $upload_id ) ) {
     error_log('[Beats Blueprint] Upload page ready (post ID ' . $upload_id . ').');
 }
 
-add_filter( 'render_block_core/navigation', function( $block_content, $block ) {
-    return beats_filter_navigation_html( $block_content );
-}, 10, 2 );
-
 add_filter( 'render_block_core/post-title', function( $block_content, $block ) {
     if ( is_front_page() ) {
         return '';
-    }
-
-    return $block_content;
-}, 10, 2 );
-
-add_filter( 'render_block_core/site-title', function( $block_content, $block ) {
-    $title = esc_html( get_option( 'blogname', 'Beats' ) );
-    $pattern = '/(<a[^>]*wp-block-site-title__link[^>]*>)(.*?)(<\/a>)/is';
-    if ( preg_match( $pattern, $block_content ) ) {
-        return preg_replace( $pattern, '$1' . $title . '$3', $block_content );
-    }
-
-    $pattern = '/(<[^>]*wp-block-site-title[^>]*>)(.*?)(<\/[^>]+>)/is';
-    if ( preg_match( $pattern, $block_content ) ) {
-        return preg_replace( $pattern, '$1' . $title . '$3', $block_content );
     }
 
     return $block_content;
@@ -349,26 +224,6 @@ add_action( 'wp_head', function() {
 error_log('[Beats Blueprint] runPHP complete');
 
 update_option( 'blogname', 'Beats' );
-$wp_navigation = get_posts( [ 'post_type' => 'wp_navigation', 'numberposts' => 1 ] );
-if ( ! empty( $wp_navigation ) ) {
-    $nav = $wp_navigation[0];
-    $blocks = parse_blocks( $nav->post_content );
-    $filtered = array_filter(
-        $blocks,
-        function( $block ) {
-            if ( 'core/navigation-link' !== ( $block['blockName'] ?? '' ) ) {
-                return true;
-            }
-            $label = trim( $block['attrs']['label'] ?? '' );
-            return strtolower( $label ) !== 'beats demo';
-        }
-    );
-    if ( count( $filtered ) !== count( $blocks ) ) {
-        $nav->post_content = serialize_blocks( $filtered );
-        wp_update_post( $nav );
-        error_log( '[Beats Blueprint] Navigation cleaned.' );
-    }
-}
 "
     }
   ]
