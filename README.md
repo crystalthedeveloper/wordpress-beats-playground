@@ -91,60 +91,74 @@ if ( function_exists( 'beats_prime_data' ) ) {
     error_log('[Beats Blueprint] no seeding function available');
 }
 
-if ( ! function_exists( 'beats_update_navigation_blocks' ) ) {
-    function beats_update_navigation_blocks( $blocks, $home_url ) {
-        foreach ( $blocks as &$block ) {
-            if ( ! empty( $block['innerBlocks'] ) ) {
-                $block['innerBlocks'] = beats_update_navigation_blocks( $block['innerBlocks'], $home_url );
+if ( ! function_exists( 'beats_update_navigation_html' ) ) {
+    function beats_update_navigation_html( $html ) {
+        if ( ! $html ) {
+            return $html;
+        }
+
+        if ( ! class_exists( 'DOMDocument' ) ) {
+            return $html;
+        }
+
+        $home_url = home_url( '/' );
+        $dom      = new DOMDocument();
+        libxml_use_internal_errors( true );
+        $loaded = $dom->loadHTML( '<?xml encoding=\"utf-8\"?>' . $html );
+        libxml_clear_errors();
+
+        if ( ! $loaded ) {
+            return $html;
+        }
+
+        $xpath      = new DOMXPath( $dom );
+        $anchors    = $xpath->query( '//a' );
+        $home_found = false;
+
+        foreach ( $anchors as $anchor ) {
+            $text  = trim( $anchor->textContent );
+            $lower = strtolower( $text );
+
+            if ( 'beats demo' === $lower ) {
+                $li = $anchor->parentNode;
+                if ( $li && 'li' === strtolower( $li->nodeName ) ) {
+                    $li->parentNode->removeChild( $li );
+                } else {
+                    $anchor->parentNode->removeChild( $anchor );
+                }
+                continue;
             }
 
-            if ( 'core/navigation' === ( $block['blockName'] ?? '' ) ) {
-                $has_home       = false;
-                $filtered_inner = array();
-
-                foreach ( $block['innerBlocks'] as $inner_block ) {
-                    $inner_name  = $inner_block['blockName'] ?? '';
-                    $inner_label = strtolower( trim( $inner_block['attrs']['label'] ?? '' ) );
-                    $url         = $inner_block['attrs']['url'] ?? '';
-
-                    if ( 'core/navigation-link' === $inner_name ) {
-                        if ( 'beats demo' === $inner_label ) {
-                            continue;
-                        }
-
-                        if ( ! $has_home && ( ! $url || untrailingslashit( $url ) === untrailingslashit( $home_url ) || in_array( $inner_label, array( 'home', 'my wordpress website' ), true ) ) ) {
-                            $inner_block['attrs']['label'] = 'Beats';
-                            $inner_block['attrs']['title'] = 'Beats';
-                            $inner_block['attrs']['url']   = $home_url;
-                            $has_home                      = true;
-                        }
-                    }
-
-                    $filtered_inner[] = $inner_block;
+            $href = $anchor->getAttribute( 'href' );
+            if ( ! $home_found && ( ! $href || untrailingslashit( $href ) === untrailingslashit( $home_url ) || in_array( $lower, array( 'home', 'my wordpress website' ), true ) ) ) {
+                while ( $anchor->firstChild ) {
+                    $anchor->removeChild( $anchor->firstChild );
                 }
-
-                if ( ! $has_home ) {
-                    array_unshift(
-                        $filtered_inner,
-                        array(
-                            'blockName'    => 'core/navigation-link',
-                            'attrs'        => array(
-                                'label' => 'Beats',
-                                'title' => 'Beats',
-                                'url'   => $home_url,
-                            ),
-                            'innerBlocks'  => array(),
-                            'innerHTML'    => '',
-                            'innerContent' => array(),
-                        )
-                    );
-                }
-
-                $block['innerBlocks'] = $filtered_inner;
+                $anchor->appendChild( $dom->createTextNode( 'Beats' ) );
+                $anchor->setAttribute( 'href', $home_url );
+                $home_found = true;
             }
         }
 
-        return $blocks;
+        if ( ! $home_found ) {
+            $list = $xpath->query( '//nav//ul' )->item( 0 );
+            if ( $list ) {
+                $li = $dom->createElement( 'li' );
+                $li->setAttribute( 'class', 'wp-block-navigation-item' );
+                $a = $dom->createElement( 'a', 'Beats' );
+                $a->setAttribute( 'href', $home_url );
+                $li->appendChild( $a );
+                $list->insertBefore( $li, $list->firstChild );
+            }
+        }
+
+        $nav = $dom->getElementsByTagName( 'nav' )->item( 0 );
+        if ( ! $nav ) {
+            return $html;
+        }
+
+        $output = $dom->saveHTML( $nav );
+        return $output ? $output : $html;
     }
 }
 
@@ -266,24 +280,9 @@ if ( is_wp_error( $upload_id ) ) {
     error_log('[Beats Blueprint] Upload page ready (post ID ' . $upload_id . ').');
 }
 
-$header_slug = sprintf( '%s//header', $theme_slug );
-$header_template = get_page_by_path( $header_slug, OBJECT, 'wp_template_part' );
-if ( $header_template && ! empty( $header_template->post_content ) ) {
-    $header_blocks   = parse_blocks( $header_template->post_content );
-    $updated_blocks  = beats_update_navigation_blocks( $header_blocks, home_url( '/' ) );
-    $updated_content = serialize_blocks( $updated_blocks );
-    if ( $updated_content && $updated_content !== $header_template->post_content ) {
-        wp_update_post(
-            array(
-                'ID'           => $header_template->ID,
-                'post_content' => $updated_content,
-            )
-        );
-        error_log('[Beats Blueprint] Header navigation updated.');
-    }
-} else {
-    error_log('[Beats Blueprint] Unable to load header template part.');
-}
+add_filter( 'render_block_core/navigation', function( $block_content, $block ) {
+    return beats_update_navigation_html( $block_content );
+}, 10, 2 );
 
 add_filter( 'render_block_core/post-title', function( $block_content, $block ) {
     if ( is_front_page() ) {
