@@ -76,7 +76,8 @@ require_once ABSPATH . 'wp-admin/includes/template.php';
 
 error_log('[Beats Blueprint] runPHP start');
 $theme = wp_get_theme();
-error_log('[Beats Blueprint] theme stylesheet: ' . $theme->get_stylesheet());
+$theme_slug = $theme->get_stylesheet();
+error_log('[Beats Blueprint] theme stylesheet: ' . $theme_slug);
 error_log('[Beats Blueprint] show_on_front before: ' . var_export(get_option('show_on_front', 'unset'), true));
 error_log('[Beats Blueprint] page_on_front before: ' . var_export(get_option('page_on_front', 'unset'), true));
 
@@ -88,6 +89,63 @@ if ( function_exists( 'beats_prime_data' ) ) {
     error_log('[Beats Blueprint] beats_seed_playground_demo executed');
 } else {
     error_log('[Beats Blueprint] no seeding function available');
+}
+
+if ( ! function_exists( 'beats_update_navigation_blocks' ) ) {
+    function beats_update_navigation_blocks( $blocks, $home_url ) {
+        foreach ( $blocks as &$block ) {
+            if ( ! empty( $block['innerBlocks'] ) ) {
+                $block['innerBlocks'] = beats_update_navigation_blocks( $block['innerBlocks'], $home_url );
+            }
+
+            if ( 'core/navigation' === ( $block['blockName'] ?? '' ) ) {
+                $has_home       = false;
+                $filtered_inner = array();
+
+                foreach ( $block['innerBlocks'] as $inner_block ) {
+                    $inner_name  = $inner_block['blockName'] ?? '';
+                    $inner_label = strtolower( trim( $inner_block['attrs']['label'] ?? '' ) );
+                    $url         = $inner_block['attrs']['url'] ?? '';
+
+                    if ( 'core/navigation-link' === $inner_name ) {
+                        if ( 'beats demo' === $inner_label ) {
+                            continue;
+                        }
+
+                        if ( ! $has_home && ( ! $url || untrailingslashit( $url ) === untrailingslashit( $home_url ) || in_array( $inner_label, array( 'home', 'my wordpress website' ), true ) ) ) {
+                            $inner_block['attrs']['label'] = 'Beats';
+                            $inner_block['attrs']['title'] = 'Beats';
+                            $inner_block['attrs']['url']   = $home_url;
+                            $has_home                      = true;
+                        }
+                    }
+
+                    $filtered_inner[] = $inner_block;
+                }
+
+                if ( ! $has_home ) {
+                    array_unshift(
+                        $filtered_inner,
+                        array(
+                            'blockName'    => 'core/navigation-link',
+                            'attrs'        => array(
+                                'label' => 'Beats',
+                                'title' => 'Beats',
+                                'url'   => $home_url,
+                            ),
+                            'innerBlocks'  => array(),
+                            'innerHTML'    => '',
+                            'innerContent' => array(),
+                        )
+                    );
+                }
+
+                $block['innerBlocks'] = $filtered_inner;
+            }
+        }
+
+        return $blocks;
+    }
 }
 
 $beats_content = <<<HTML
@@ -208,6 +266,25 @@ if ( is_wp_error( $upload_id ) ) {
     error_log('[Beats Blueprint] Upload page ready (post ID ' . $upload_id . ').');
 }
 
+$header_slug = sprintf( '%s//header', $theme_slug );
+$header_template = get_page_by_path( $header_slug, OBJECT, 'wp_template_part' );
+if ( $header_template && ! empty( $header_template->post_content ) ) {
+    $header_blocks   = parse_blocks( $header_template->post_content );
+    $updated_blocks  = beats_update_navigation_blocks( $header_blocks, home_url( '/' ) );
+    $updated_content = serialize_blocks( $updated_blocks );
+    if ( $updated_content && $updated_content !== $header_template->post_content ) {
+        wp_update_post(
+            array(
+                'ID'           => $header_template->ID,
+                'post_content' => $updated_content,
+            )
+        );
+        error_log('[Beats Blueprint] Header navigation updated.');
+    }
+} else {
+    error_log('[Beats Blueprint] Unable to load header template part.');
+}
+
 add_filter( 'render_block_core/post-title', function( $block_content, $block ) {
     if ( is_front_page() ) {
         return '';
@@ -230,6 +307,10 @@ add_filter( 'render_block_core/site-title', function( $block_content, $block ) {
 
     return $block_content;
 }, 10, 2 );
+
+add_action( 'wp_head', function() {
+    echo '<style>#beats-wrapper{border:none!important;box-shadow:none!important;}#beats-wrapper .wp-block-group{border:none!important;box-shadow:none!important;}</style>';
+} );
 
 error_log('[Beats Blueprint] runPHP complete');
 
