@@ -209,12 +209,12 @@ if ( is_wp_error( $upload_id ) ) {
     error_log('[Beats Blueprint] Upload page ready (post ID ' . $upload_id . ').');
 }
 
-add_filter( 'render_block_core/post-title', function( $block_content, $block ) {
-    if ( is_front_page() ) {
+add_filter( 'pre_render_block', function( $pre_render, $parsed_block ) {
+    if ( ( $parsed_block['blockName'] ?? '' ) === 'core/post-title' && is_front_page() ) {
         return '';
     }
 
-    return $block_content;
+    return $pre_render;
 }, 10, 2 );
 
 add_action( 'wp_head', function() {
