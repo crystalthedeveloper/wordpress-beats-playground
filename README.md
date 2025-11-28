@@ -153,6 +153,50 @@ if ( ! function_exists( 'beats_filter_navigation_html' ) ) {
     }
 }
 
+$header_template = <<<HTML
+<!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"20px\",\"bottom\":\"20px\",\"right\":\"24px\",\"left\":\"24px\"}}},\"layout\":{\"type\":\"flex\",\"justifyContent\":\"space-between\",\"flexWrap\":\"wrap\"}} -->
+<div class=\"wp-block-group alignfull\" style=\"padding-top:20px;padding-right:24px;padding-bottom:20px;padding-left:24px\">
+<!-- wp:site-title {\"level\":0,\"style\":{\"typography\":{\"fontWeight\":\"900\"}}} /-->
+<!-- wp:navigation {\"layout\":{\"type\":\"flex\",\"justifyContent\":\"right\",\"flexWrap\":\"wrap\"},\"overlayMenu\":\"never\"} -->
+<!-- wp:navigation-link {\"label\":\"Beats\",\"url\":\"%1$s\",\"kind\":\"custom\"} /-->
+<!-- wp:navigation-link {\"label\":\"Upload\",\"url\":\"%2$s\",\"kind\":\"post-type\",\"type\":\"page\"} /-->
+<!-- /wp:navigation -->
+</div>
+<!-- /wp:group -->
+HTML;
+
+$header_content = sprintf( $header_template, esc_url( home_url( '/' ) ), esc_url( home_url( '/upload/' ) ) );
+$header_slug    = sprintf( '%s//header', $theme_slug );
+
+$header_args = array(
+    'post_title'   => 'Header',
+    'post_name'    => $header_slug,
+    'post_status'  => 'publish',
+    'post_type'    => 'wp_template_part',
+    'post_content' => $header_content,
+    'tax_input'    => array(
+        'wp_theme' => array( $theme_slug ),
+    ),
+    'meta_input'   => array(
+        'origin' => 'beats-blueprint'
+    ),
+);
+
+$existing_header = get_page_by_path( $header_slug, OBJECT, 'wp_template_part' );
+if ( $existing_header ) {
+    $header_args['ID'] = $existing_header->ID;
+    $header_id         = wp_update_post( $header_args );
+} else {
+    $header_id = wp_insert_post( $header_args );
+}
+
+if ( ! is_wp_error( $header_id ) ) {
+    wp_set_post_terms( $header_id, $theme_slug, 'wp_theme' );
+    error_log('[Beats Blueprint] Header template part saved with ID ' . $header_id );
+} else {
+    error_log('[Beats Blueprint] Failed to save header template: ' . $header_id->get_error_message());
+}
+
 $beats_content = <<<HTML
 <!-- wp:group {\"tagName\":\"main\",\"align\":\"full\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"30px\",\"right\":\"20px\",\"bottom\":\"40px\",\"left\":\"20px\"}}}} -->
 <main class=\"wp-block-group alignfull\" style=\"padding-top:30px;padding-right:20px;padding-bottom:40px;padding-left:20px\">
@@ -161,12 +205,12 @@ $beats_content = <<<HTML
 <!-- wp:paragraph {\"align\":\"center\"} -->
 <p class=\"has-text-align-center\">Preview the Beats library and player below.</p>
 <!-- /wp:paragraph -->
-<!-- wp:shortcode -->[beats_category_search]<!-- /wp:shortcode -->
+<!-- wp:shortcode -->[beats_cltd_category_search]<!-- /wp:shortcode -->
 <!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"blockGap\":\"16px\"}},\"layout\":{\"type\":\"flex\",\"orientation\":\"vertical\"}} -->
 <div class=\"wp-block-group alignfull\" style=\"gap:16px\">
-<!-- wp:shortcode -->[beats_visualizer]<!-- /wp:shortcode -->
-<!-- wp:shortcode -->[beats_display_home]<!-- /wp:shortcode -->
-<!-- wp:shortcode -->[beats_global_player]<!-- /wp:shortcode -->
+<!-- wp:shortcode -->[beats_cltd_visualizer]<!-- /wp:shortcode -->
+<!-- wp:shortcode -->[beats_cltd_display_home]<!-- /wp:shortcode -->
+<!-- wp:shortcode -->[beats_cltd_global_player]<!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->
 </div>
@@ -232,7 +276,7 @@ $upload_content = <<<HTML
 <!-- wp:paragraph {\"align\":\"center\"} -->
 <p class=\"has-text-align-center\">Share a new beat with the Playground uploader.</p>
 <!-- /wp:paragraph -->
-<!-- wp:shortcode -->[beats_upload_form]<!-- /wp:shortcode -->
+<!-- wp:shortcode -->[beats_cltd_upload_form]<!-- /wp:shortcode -->
 </div>
 <!-- /wp:group -->
 </main>
