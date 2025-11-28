@@ -99,12 +99,12 @@ $beats_content = <<<HTML
 <!-- wp:paragraph {\"align\":\"center\"} -->
 <p class=\"has-text-align-center\">Preview the Beats library and player below.</p>
 <!-- /wp:paragraph -->
-<!-- wp:shortcode -->[beats_cltd_category_search]<!-- /wp:shortcode -->
+<!-- wp:beats/category-search /-->
 <!-- wp:group {\"align\":\"full\",\"style\":{\"spacing\":{\"blockGap\":\"16px\"}},\"layout\":{\"type\":\"flex\",\"orientation\":\"vertical\"}} -->
 <div class=\"wp-block-group alignfull\" style=\"gap:16px\">
-<!-- wp:shortcode -->[beats_cltd_visualizer]<!-- /wp:shortcode -->
-<!-- wp:shortcode -->[beats_cltd_display_home]<!-- /wp:shortcode -->
-<!-- wp:shortcode -->[beats_cltd_global_player]<!-- /wp:shortcode -->
+<!-- wp:beats/visualizer /-->
+<!-- wp:beats/display-home /-->
+<!-- wp:beats/global-player /-->
 </div>
 <!-- /wp:group -->
 </div>
