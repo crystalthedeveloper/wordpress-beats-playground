@@ -104,7 +104,7 @@ if ( ! function_exists( 'beats_update_navigation_html' ) ) {
         $home_url = home_url( '/' );
         $dom      = new DOMDocument();
         libxml_use_internal_errors( true );
-        $loaded = $dom->loadHTML( '<?xml encoding=\"utf-8\"?>' . $html );
+        $loaded = $dom->loadHTML( mb_convert_encoding( $html, 'HTML-ENTITIES', 'UTF-8' ) );
         libxml_clear_errors();
 
         if ( ! $loaded ) {
