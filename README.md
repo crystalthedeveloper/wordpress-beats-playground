@@ -210,6 +210,10 @@ if ( is_wp_error( $upload_id ) ) {
 }
 
 add_filter( 'pre_render_block', function( $pre_render, $parsed_block ) {
+    if ( is_admin() ) {
+        return $pre_render;
+    }
+
     if ( ( $parsed_block['blockName'] ?? '' ) === 'core/post-title' && is_front_page() ) {
         return '';
     }
