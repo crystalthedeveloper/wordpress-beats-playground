@@ -209,18 +209,6 @@ if ( is_wp_error( $upload_id ) ) {
     error_log('[Beats Blueprint] Upload page ready (post ID ' . $upload_id . ').');
 }
 
-add_filter( 'pre_render_block', function( $pre_render, $parsed_block ) {
-    if ( is_admin() ) {
-        return $pre_render;
-    }
-
-    if ( ( $parsed_block['blockName'] ?? '' ) === 'core/post-title' && is_front_page() ) {
-        return '';
-    }
-
-    return $pre_render;
-}, 10, 2 );
-
 add_action( 'wp_head', function() {
     echo '<style>#beats-wrapper{border:none!important;box-shadow:none!important;}#beats-wrapper .wp-block-group{border:none!important;box-shadow:none!important;}.wp-block-post-title,h1,.wp-block-site-title,h1.wp-block-site-title{display:none!important;}</style>';
 } );
