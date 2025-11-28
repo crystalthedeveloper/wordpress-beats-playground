@@ -218,7 +218,7 @@ add_filter( 'render_block_core/post-title', function( $block_content, $block ) {
 }, 10, 2 );
 
 add_action( 'wp_head', function() {
-    echo '<style>#beats-wrapper{border:none!important;box-shadow:none!important;}#beats-wrapper .wp-block-group{border:none!important;box-shadow:none!important;}</style>';
+    echo '<style>#beats-wrapper{border:none!important;box-shadow:none!important;}#beats-wrapper .wp-block-group{border:none!important;box-shadow:none!important;}.wp-block-post-title,h1{text-align:center;}</style>';
 } );
 
 error_log('[Beats Blueprint] runPHP complete');
