@@ -1,0 +1,16 @@
+{
+  "apiVersion": 2,
+  "name": "beats/upload-form",
+  "title": "Beats Upload Form",
+  "category": "cltd",
+  "icon": "upload",
+  "description": "Displays the Beats CLTD upload form.",
+  "textdomain": "beats-upload-player",
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "example": {
+    "attributes": {}
+  }
+}

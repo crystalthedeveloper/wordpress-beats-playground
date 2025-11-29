@@ -1,0 +1,16 @@
+{
+  "apiVersion": 2,
+  "name": "beats/visualizer",
+  "title": "Beats Visualizer",
+  "category": "cltd",
+  "icon": "controls-repeat",
+  "description": "Displays the Beats visualizer UI.",
+  "textdomain": "beats-upload-player",
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "example": {
+    "attributes": {}
+  }
+}

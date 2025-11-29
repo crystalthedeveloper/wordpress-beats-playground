@@ -1,0 +1,16 @@
+{
+  "apiVersion": 2,
+  "name": "beats/display-home",
+  "title": "Beats Display Home",
+  "category": "cltd",
+  "icon": "playlist-audio",
+  "description": "Renders the Beats home sections.",
+  "textdomain": "beats-upload-player",
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "example": {
+    "attributes": {}
+  }
+}

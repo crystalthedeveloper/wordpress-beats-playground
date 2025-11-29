@@ -1,0 +1,16 @@
+{
+  "apiVersion": 2,
+  "name": "beats/global-player",
+  "title": "Beats Global Player",
+  "category": "cltd",
+  "icon": "format-audio",
+  "description": "Adds the Beats global audio player.",
+  "textdomain": "beats-upload-player",
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "example": {
+    "attributes": {}
+  }
+}
