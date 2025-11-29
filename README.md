@@ -251,6 +251,10 @@ Then reference its shortcode inside the page content, e.g.:
 <!-- wp:shortcode -->[beats_visualizer_demo]<!-- /wp:shortcode -->
 ```
 
+### Beats Upload Form block
+
+Need a front-end uploader in a custom template? Drop the `Beats Upload Form` block from the **CLTD Blocks** inserter category (or use the `[beats_cltd_upload_form]` shortcode) anywhere in the Site Editor. It renders the same form that appears on the `/upload/` page, so creators can submit new beats without visiting wp-admin.
+
 ---
 
 ## 🧩 Shortcode Helpers
