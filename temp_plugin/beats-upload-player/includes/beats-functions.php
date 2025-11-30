@@ -254,6 +254,84 @@ function beats_sanitize_beat_entry( $beat ) {
   return $entry;
 }
 
+function beats_resolve_asset_url( $value, $paths ) {
+  $value = ltrim( (string) $value, '/' );
+  if ( $value === '' ) {
+    return '';
+  }
+
+  $uploads_url  = trailingslashit( $paths['url'] );
+  $uploads_base = trailingslashit( $paths['base'] );
+  $plugin_public_url = trailingslashit( plugin_dir_url( __FILE__ ) . '../public' );
+
+  if ( preg_match( '#^https?://#i', $value ) ) {
+    return $value;
+  }
+
+  if ( file_exists( $uploads_base . $value ) ) {
+    return $uploads_url . $value;
+  }
+
+  if ( strpos( $value, 'public/' ) === 0 ) {
+    return $plugin_public_url . substr( $value, strlen( 'public/' ) );
+  }
+
+  if ( strpos( $value, 'audio/' ) === 0 || strpos( $value, 'images/' ) === 0 ) {
+    return $uploads_url . $value;
+  }
+
+  return $uploads_url . $value;
+}
+
+function beats_render_beat_card( $beat, $paths ) {
+  $audio_url = esc_url( beats_resolve_asset_url( $beat['file'], $paths ) );
+  $image_url = $beat['image'] !== ''
+    ? esc_url( beats_resolve_asset_url( $beat['image'], $paths ) )
+    : esc_url( plugin_dir_url( __FILE__ ) . '../public/images/default-art.webp' );
+  $producer = $beat['producer'] !== '' ? $beat['producer'] : __( 'Unknown Producer', 'beats-upload-player' );
+  $price_display = $beat['price'] !== '' ? sprintf( __( 'CAD $%s', 'beats-upload-player' ), $beat['price'] ) : '';
+  $buy_link = $beat['buy_url'] !== '' ? esc_url( $beat['buy_url'] ) : '';
+
+  ob_start(); ?>
+  <div class="beat-card"
+    data-src="<?php echo $audio_url; ?>"
+    data-name="<?php echo esc_attr( $beat['name'] ); ?>"
+    data-producer="<?php echo esc_attr( $producer ); ?>"
+    data-cat="<?php echo esc_attr( $beat['category'] ); ?>"
+    data-price="<?php echo esc_attr( $price_display !== '' ? $price_display : __( 'Free', 'beats-upload-player' ) ); ?>"
+    data-img="<?php echo $image_url; ?>"
+    data-buy="<?php echo esc_attr( $buy_link ); ?>">
+    <div class="beat-thumb">
+      <img src="<?php echo $image_url; ?>" alt="<?php esc_attr_e( 'Beat Cover', 'beats-upload-player' ); ?>" loading="lazy">
+      <div class="beat-title-ribbon"><?php echo esc_html( $beat['name'] ); ?></div>
+      <div class="beat-overlay">
+        <div class="beat-overlay-actions">
+          <button type="button" class="beat-info-btn" aria-label="<?php esc_attr_e( 'Show beat info', 'beats-upload-player' ); ?>">&#9432;</button>
+          <button type="button" class="beat-cart-btn" aria-label="<?php esc_attr_e( 'Show price', 'beats-upload-player' ); ?>">&#128722;</button>
+          <button type="button" class="beat-play-btn" aria-label="<?php esc_attr_e( 'Play beat', 'beats-upload-player' ); ?>">▶</button>
+        </div>
+        <div class="beat-overlay-panel">
+          <div class="beat-panel beat-panel-info"><small class="beat-producer"><?php printf( esc_html__( 'By %s', 'beats-upload-player' ), esc_html( $producer ) ); ?></small></div>
+          <?php
+          $cart_classes = 'beat-panel beat-panel-cart';
+          if ( $price_display === '' ) {
+            $cart_classes .= ' beat-panel-cart--empty';
+          }
+          ?>
+          <div class="<?php echo esc_attr( $cart_classes ); ?>">
+            <span class="beat-price"><?php echo $price_display !== '' ? esc_html( $price_display ) : esc_html__( 'Free', 'beats-upload-player' ); ?></span>
+            <?php if ( $buy_link ) : ?>
+              <a class="beat-store-btn" href="<?php echo $buy_link; ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Buy Now', 'beats-upload-player' ); ?></a>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php
+  return ob_get_clean();
+}
+
 function beats_format_upload_error( $error ) {
   if ( ! is_wp_error( $error ) ) {
     return '';
@@ -407,33 +485,6 @@ if (!function_exists('beats_render_category_batch')) {
     }
 
     $paths = beats_paths();
-    $uploads_url = trailingslashit($paths['url']);
-    $uploads_base = trailingslashit($paths['base']);
-    $plugin_public_url = trailingslashit(plugin_dir_url(__FILE__) . '../public');
-
-    $beats_build_url = function ($value) use ($uploads_url, $uploads_base, $plugin_public_url) {
-      $value = ltrim((string) $value, '/');
-      if ($value === '') {
-        return '';
-      }
-      if (preg_match('#^https?://#i', $value)) {
-        return $value;
-      }
-
-      if (file_exists($uploads_base . $value)) {
-        return $uploads_url . $value;
-      }
-
-      if (strpos($value, 'public/') === 0) {
-        return $plugin_public_url . substr($value, strlen('public/'));
-      }
-
-      if (strpos($value, 'audio/') === 0 || strpos($value, 'images/') === 0) {
-        return $uploads_url . $value;
-      }
-
-      return $uploads_url . $value;
-    };
 
     ob_start();
     foreach ($batch as $cat) {
@@ -442,48 +493,7 @@ if (!function_exists('beats_render_category_batch')) {
 
       foreach ($grouped[$cat] as $beat_raw) {
         $b = beats_sanitize_beat_entry($beat_raw);
-
-        $url = esc_url($beats_build_url($b['file']));
-        $img = $b['image'] !== ''
-          ? esc_url($beats_build_url($b['image']))
-          : esc_url(plugin_dir_url(__FILE__) . '../public/images/default-art.webp');
-        $producer = $b['producer'] !== '' ? $b['producer'] : __('Unknown Producer', 'beats-upload-player');
-        $price_display = $b['price'] !== '' ? 'CAD $' . $b['price'] : '';
-        $buy_link = $b['buy_url'] !== '' ? esc_url($b['buy_url']) : '';
-
-        echo '<div class="beat-card"
-                data-src="' . $url . '"
-                data-name="' . esc_attr($b['name']) . '"
-                data-producer="' . esc_attr($producer) . '"
-                data-cat="' . esc_attr($b['category']) . '"
-                data-price="' . esc_attr($price_display !== '' ? $price_display : 'Free') . '"
-                data-img="' . $img . '"
-                data-buy="' . esc_attr($buy_link) . '">';
-        echo '<div class="beat-thumb">';
-        echo '<img src="' . $img . '" alt="Beat Cover" loading="lazy">';
-        echo '<div class="beat-title-ribbon">' . esc_html($b['name']) . '</div>';
-        echo '<div class="beat-overlay">';
-        echo '<div class="beat-overlay-actions">';
-        echo '<button type="button" class="beat-info-btn" aria-label="Show beat info">&#9432;</button>';
-        echo '<button type="button" class="beat-cart-btn" aria-label="Show price">&#128722;</button>';
-        echo '<button type="button" class="beat-play-btn" aria-label="Play beat">▶</button>';
-        echo '</div>';
-        echo '<div class="beat-overlay-panel">';
-        echo '<div class="beat-panel beat-panel-info"><small class="beat-producer">By ' . esc_html($producer) . '</small></div>';
-        $cart_classes = 'beat-panel beat-panel-cart';
-        if (!$price_display) {
-          $cart_classes .= ' beat-panel-cart--empty';
-        }
-        echo '<div class="' . esc_attr($cart_classes) . '">';
-        echo '<span class="beat-price">' . ($price_display ? esc_html($price_display) : 'Free') . '</span>';
-        if ($buy_link) {
-          echo '<a class="beat-store-btn" href="' . $buy_link . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Buy Now', 'beats-upload-player') . '</a>';
-        }
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo beats_render_beat_card($b, $paths);
       }
 
       echo '</div></div>';
