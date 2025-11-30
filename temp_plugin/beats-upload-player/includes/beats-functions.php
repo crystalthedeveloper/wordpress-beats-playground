@@ -204,6 +204,37 @@ function beats_write_json($data) {
   @file_put_contents($p['json'], json_encode(array_values($data), JSON_PRETTY_PRINT));
 }
 
+function beats_sanitize_beat_entry( $beat ) {
+  $entry = array(
+    'name'     => sanitize_text_field( $beat['name'] ?? '' ),
+    'producer' => sanitize_text_field( $beat['producer'] ?? '' ),
+    'category' => sanitize_text_field( $beat['category'] ?? '' ),
+    'price'    => '',
+    'buy_url'  => '',
+    'file'     => '',
+    'image'    => '',
+  );
+
+  $raw_price = isset( $beat['price'] ) ? (float) $beat['price'] : 0;
+  if ( $raw_price > 0 ) {
+    $entry['price'] = number_format( $raw_price, 2, '.', '' );
+  }
+
+  if ( ! empty( $beat['buy_url'] ) ) {
+    $entry['buy_url'] = esc_url_raw( $beat['buy_url'] );
+  }
+
+  if ( ! empty( $beat['file'] ) ) {
+    $entry['file'] = ltrim( (string) $beat['file'], '/' );
+  }
+
+  if ( ! empty( $beat['image'] ) ) {
+    $entry['image'] = ltrim( (string) $beat['image'], '/' );
+  }
+
+  return $entry;
+}
+
 function beats_throttle_key( $action, $identifier ) {
   $id = is_user_logged_in() ? get_current_user_id() : $identifier;
   return 'beats_throttle_' . sanitize_key( $action ) . '_' . sanitize_key( $id );
@@ -340,29 +371,28 @@ if (!function_exists('beats_render_category_batch')) {
       echo '<div class="beats-section" id="' . sanitize_title($cat) . '">';
       echo '<h4>' . esc_html($cat) . '</h4><div class="beats-row">';
 
-      foreach ($grouped[$cat] as $b) {
-        $url = esc_url($beats_build_url($b['file'] ?? ''));
-        $img = !empty($b['image'])
+      foreach ($grouped[$cat] as $beat_raw) {
+        $b = beats_sanitize_beat_entry($beat_raw);
+
+        $url = esc_url($beats_build_url($b['file']));
+        $img = $b['image'] !== ''
           ? esc_url($beats_build_url($b['image']))
           : esc_url(plugin_dir_url(__FILE__) . '../public/images/default-art.webp');
-        $producer = esc_html($b['producer'] ?? 'Unknown Producer');
-        $price_raw = isset($b['price']) ? trim((string) $b['price']) : '';
-        $price_value = $price_raw !== '' ? number_format((float) $price_raw, 2, '.', '') : '';
-        $price_display = ($price_value !== '' && (float) $price_value > 0) ? 'CAD $' . $price_value : '';
-        $buy_link_raw = isset($b['buy_url']) ? trim((string) $b['buy_url']) : '';
-        $buy_link = $buy_link_raw !== '' ? esc_url($buy_link_raw) : '';
+        $producer = $b['producer'] !== '' ? $b['producer'] : __('Unknown Producer', 'beats-upload-player');
+        $price_display = $b['price'] !== '' ? 'CAD $' . $b['price'] : '';
+        $buy_link = $b['buy_url'] !== '' ? esc_url($b['buy_url']) : '';
 
         echo '<div class="beat-card"
                 data-src="' . $url . '"
-                data-name="' . esc_attr($b['name'] ?? '') . '"
+                data-name="' . esc_attr($b['name']) . '"
                 data-producer="' . esc_attr($producer) . '"
-                data-cat="' . esc_attr($b['category'] ?? '') . '"
+                data-cat="' . esc_attr($b['category']) . '"
                 data-price="' . esc_attr($price_display !== '' ? $price_display : 'Free') . '"
                 data-img="' . $img . '"
                 data-buy="' . esc_attr($buy_link) . '">';
         echo '<div class="beat-thumb">';
         echo '<img src="' . $img . '" alt="Beat Cover" loading="lazy">';
-        echo '<div class="beat-title-ribbon">' . esc_html($b['name'] ?? '') . '</div>';
+        echo '<div class="beat-title-ribbon">' . esc_html($b['name']) . '</div>';
         echo '<div class="beat-overlay">';
         echo '<div class="beat-overlay-actions">';
         echo '<button type="button" class="beat-info-btn" aria-label="Show beat info">&#9432;</button>';
@@ -370,7 +400,7 @@ if (!function_exists('beats_render_category_batch')) {
         echo '<button type="button" class="beat-play-btn" aria-label="Play beat">▶</button>';
         echo '</div>';
         echo '<div class="beat-overlay-panel">';
-        echo '<div class="beat-panel beat-panel-info"><small class="beat-producer">By ' . $producer . '</small></div>';
+        echo '<div class="beat-panel beat-panel-info"><small class="beat-producer">By ' . esc_html($producer) . '</small></div>';
         $cart_classes = 'beat-panel beat-panel-cart';
         if (!$price_display) {
           $cart_classes .= ' beat-panel-cart--empty';

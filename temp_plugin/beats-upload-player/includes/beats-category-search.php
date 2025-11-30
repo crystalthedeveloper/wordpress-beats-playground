@@ -66,13 +66,16 @@ function beats_cltd_category_search_shortcode() {
   $sticky_attr = $sticky_disabled ? ' data-sticky-disabled="1"' : ' data-sticky-disabled="0"';
   $container_classes = 'beats-search-container' . ($sticky_disabled ? ' beats-search-container--static' : '');
 
+  $not_found_message = __('No matching category found', 'beats-upload-player');
+  $default_placeholder = '🔍 ' . __('Search genre (e.g. Hip hop, Trap, Reggae)...', 'beats-upload-player');
+
   ob_start(); ?>
 
   <div class="<?php echo esc_attr($container_classes); ?>" data-sticky-top="32"<?php echo $sticky_attr; ?>>
     <input
       type="text"
       id="beats-search-input"
-      placeholder="🔍 Search genre (e.g. Hip hop, Trap, Reggae)..."
+      placeholder="<?php echo esc_attr($default_placeholder); ?>"
     />
   </div>
 
@@ -136,7 +139,7 @@ function beats_cltd_category_search_shortcode() {
             setTimeout(() => target.classList.remove("highlight"), 1500);
             clearNotFound();
           } else {
-            markNotFound("No matching category found");
+            markNotFound(<?php echo wp_json_encode($not_found_message); ?>);
           }
         }
       });
