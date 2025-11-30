@@ -126,11 +126,100 @@ function beats_handle_frontend_upload( $file, $subdir, $allowed_mimes, $max_size
 /* ===============================
    Upload Form
 =============================== */
+function beats_process_frontend_upload_submission() {
+  if (!beats_user_can_frontend_upload(get_current_user_id())) {
+    return new WP_Error('beats-upload-permission', __('You do not have permission to upload files.', 'beats-upload-player'));
+  }
+
+  if (!isset($_POST['beats_upload_nonce']) || !wp_verify_nonce($_POST['beats_upload_nonce'], 'beats-frontend-upload')) {
+    return new WP_Error('beats-upload-nonce', __('Security check failed. Please reload and try again.', 'beats-upload-player'));
+  }
+
+  if (empty($_FILES['beat_file']['name'])) {
+    return new WP_Error('beats-upload-missing-file', __('Please upload a beat file.', 'beats-upload-player'));
+  }
+
+  if (!beats_user_can_frontend_upload(get_current_user_id())) {
+    return new WP_Error('beats-upload-permission', __('You do not have permission to upload files.', 'beats-upload-player'));
+  }
+
+  $beat_name = sanitize_text_field(wp_unslash($_POST['beat_name'] ?? ''));
+  $producer  = sanitize_text_field(wp_unslash($_POST['beat_producer'] ?? ''));
+  $category  = sanitize_text_field(wp_unslash($_POST['beat_category'] ?? ''));
+  $price_raw = sanitize_text_field(wp_unslash($_POST['beat_price'] ?? ''));
+  $buy_link  = isset($_POST['beat_buy_url']) ? esc_url_raw(trim(wp_unslash($_POST['beat_buy_url']))) : '';
+
+  if ($price_raw !== '' && !is_numeric($price_raw)) {
+    return new WP_Error('beats-upload-price', __('Please enter a valid numeric price.', 'beats-upload-player'));
+  }
+
+  $price     = $price_raw !== '' ? floatval($price_raw) : '';
+  $file      = $_FILES['beat_file'];
+  $image     = $_FILES['beat_image'] ?? null;
+
+  if (empty($image['name'])) {
+    return new WP_Error('beats-upload-image', __('Please upload a cover image.', 'beats-upload-player'));
+  }
+
+  $audio_upload = beats_handle_frontend_upload(
+    $file,
+    'audio',
+    beats_get_allowed_audio_mimes(),
+    apply_filters('beats_audio_max_upload_size', 20 * MB_IN_BYTES)
+  );
+
+  if (is_wp_error($audio_upload)) {
+    return $audio_upload;
+  }
+
+  $image_upload = beats_handle_frontend_upload(
+    $image,
+    'images',
+    beats_get_allowed_image_mimes(),
+    apply_filters('beats_image_max_upload_size', 5 * MB_IN_BYTES)
+  );
+
+  if (is_wp_error($image_upload)) {
+    return $image_upload;
+  }
+
+  $meta = [
+    'name'     => $beat_name ?: pathinfo($audio_upload['relative'], PATHINFO_FILENAME),
+    'producer' => $producer ?: 'Unknown Producer',
+    'file'     => $audio_upload['relative'],
+    'category' => $category ?: 'Uncategorized',
+    'image'    => $image_upload['relative'],
+    'price'    => $price !== '' ? number_format((float)$price, 2, '.', '') : '',
+    'buy_url'  => $buy_link,
+    'uploaded' => current_time('mysql')
+  ];
+
+  $data = beats_read_json();
+  $data[] = $meta;
+  beats_write_json($data);
+
+  return [
+    'message' => __('✅ Beat uploaded successfully.', 'beats-upload-player'),
+  ];
+}
+
+function beats_ajax_frontend_upload() {
+  $result = beats_process_frontend_upload_submission();
+  if (is_wp_error($result)) {
+    $message = function_exists('beats_format_upload_error') ? beats_format_upload_error($result) : $result->get_error_message();
+    wp_send_json_error(['message' => $message], 400);
+  }
+
+  wp_send_json_success($result);
+}
+add_action('wp_ajax_beats_frontend_upload', 'beats_ajax_frontend_upload');
+add_action('wp_ajax_nopriv_beats_frontend_upload', 'beats_ajax_frontend_upload');
+
 function beats_cltd_upload_form_shortcode() {
   wp_enqueue_style('beats-upload-style');
+  wp_enqueue_script('beats-upload-form');
 
   ob_start();
-  $paths = beats_paths();
 
   if (!is_user_logged_in()) {
     $redirect = home_url();
@@ -151,75 +240,10 @@ function beats_cltd_upload_form_shortcode() {
     return ob_get_clean();
   }
 
-  if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['beat_file']['name'])) {
-    if (!isset($_POST['beats_upload_nonce']) || !wp_verify_nonce($_POST['beats_upload_nonce'], 'beats-frontend-upload')) {
-      echo '<p class="beats-upload-error">' . esc_html__('Security check failed. Please reload and try again.', 'beats-upload-player') . '</p>';
-      return ob_get_clean();
-    }
-
-    $beat_name = sanitize_text_field(wp_unslash($_POST['beat_name'] ?? ''));
-    $producer  = sanitize_text_field(wp_unslash($_POST['beat_producer'] ?? ''));
-    $category  = sanitize_text_field(wp_unslash($_POST['beat_category'] ?? ''));
-    $price_raw = sanitize_text_field(wp_unslash($_POST['beat_price'] ?? ''));
-    $buy_link  = isset($_POST['beat_buy_url']) ? esc_url_raw(trim(wp_unslash($_POST['beat_buy_url']))) : '';
-    if ($price_raw !== '' && !is_numeric($price_raw)) {
-      echo '<p class="beats-upload-error">' . esc_html__('❌ Please enter a valid numeric price.', 'beats-upload-player') . '</p>';
-      return ob_get_clean();
-    }
-    $price     = $price_raw !== '' ? floatval($price_raw) : '';
-    $file = $_FILES['beat_file'];
-    $image= $_FILES['beat_image'] ?? null;
-
-    if (empty($image['name'])) {
-      echo '<p class="beats-upload-error">' . esc_html__('❌ Please upload a cover image.', 'beats-upload-player') . '</p>';
-      return ob_get_clean();
-    }
-
-    $audio_upload = beats_handle_frontend_upload(
-      $file,
-      'audio',
-      beats_get_allowed_audio_mimes(),
-      apply_filters('beats_audio_max_upload_size', 20 * MB_IN_BYTES)
-    );
-
-    if (is_wp_error($audio_upload)) {
-      $message = function_exists('beats_format_upload_error') ? beats_format_upload_error($audio_upload) : $audio_upload->get_error_message();
-      echo '<p class="beats-upload-error">' . esc_html($message) . '</p>';
-      return ob_get_clean();
-    }
-
-    $image_upload = beats_handle_frontend_upload(
-      $image,
-      'images',
-      beats_get_allowed_image_mimes(),
-      apply_filters('beats_image_max_upload_size', 5 * MB_IN_BYTES)
-    );
-
-    if (is_wp_error($image_upload)) {
-      $message = function_exists('beats_format_upload_error') ? beats_format_upload_error($image_upload) : $image_upload->get_error_message();
-      echo '<p class="beats-upload-error">' . esc_html($message) . '</p>';
-      return ob_get_clean();
-    }
-
-    $meta = [
-      'name'     => $beat_name ?: pathinfo($audio_upload['relative'], PATHINFO_FILENAME),
-      'producer' => $producer ?: 'Unknown Producer',
-      'file'     => $audio_upload['relative'],
-      'category' => $category ?: 'Uncategorized',
-      'image'    => $image_upload['relative'],
-      'price'    => $price !== '' ? number_format((float)$price, 2, '.', '') : '',
-      'buy_url'  => $buy_link,
-      'uploaded' => current_time('mysql')
-    ];
-
-    $data = beats_read_json();
-    $data[] = $meta;
-    beats_write_json($data);
-    echo '<p class="beats-upload-success">' . esc_html__('✅ Beat uploaded successfully.', 'beats-upload-player') . '</p>';
-  }
-
-  echo '<form method="POST" enctype="multipart/form-data" class="beats-upload-form">';
+  $ajax_url = admin_url('admin-ajax.php');
+  echo '<form method="POST" enctype="multipart/form-data" class="beats-upload-form" action="' . esc_url($ajax_url) . '">';
   wp_nonce_field('beats-frontend-upload', 'beats_upload_nonce');
+  echo '<input type="hidden" name="action" value="beats_frontend_upload">';
   echo '<label>Beat Name:</label><br><input type="text" name="beat_name" required><br><br>';
   echo '<label>Producer Name:</label><br><input type="text" name="beat_producer" required><br><br>';
   echo '<label>Price (CAD, optional):</label><br><input type="number" name="beat_price" min="0" step="0.01" placeholder="19.99"><br><br>';
@@ -228,7 +252,9 @@ function beats_cltd_upload_form_shortcode() {
   echo '<label>*Upload Cover Image:</label><br><input type="file" name="beat_image" accept=".jpg,.jpeg,.png,.webp" required><br><br>';
   echo '<label>Genre:</label><br><select name="beat_category" required>';
   foreach (beats_get_categories() as $cat) echo '<option value="'.esc_attr($cat).'">'.esc_html($cat).'</option>';
-  echo '</select><br><br><button type="submit">Upload Beat</button></form>';
+  echo '</select><br><br><button type="submit">' . esc_html__('Upload Beat', 'beats-upload-player') . '</button>';
+  echo '<div class="beats-upload-response" role="status" aria-live="polite"></div>';
+  echo '</form>';
 
   return ob_get_clean();
 }

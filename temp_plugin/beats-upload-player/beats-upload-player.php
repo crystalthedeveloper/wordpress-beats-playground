@@ -357,6 +357,7 @@ function beats_register_public_assets() {
   wp_register_script('beats-loader', $dir . 'public/js/beats-loader.js', [], $version, true);
   wp_register_script('beats-player', $dir . 'public/js/beats-player.js', [], $version, true);
   wp_register_script('beats-visualizer', $dir . 'public/js/beats-visualizer.js', [], $version, true);
+  wp_register_script('beats-upload-form', $dir . 'public/js/beats-upload-form.js', [], $version, true);
   wp_add_inline_script('beats-visualizer', "
     (function() {
       function startVisualizer() {
@@ -375,6 +376,12 @@ function beats_register_public_assets() {
   wp_localize_script('beats-loader', 'beats_ajax', [
     'ajax_url' => admin_url('admin-ajax.php'),
     'nonce'    => wp_create_nonce('beats-load'),
+  ]);
+  wp_localize_script('beats-upload-form', 'beatsUploadForm', [
+    'ajaxUrl'       => admin_url('admin-ajax.php'),
+    'uploadingText' => __('Uploading...', 'beats-upload-player'),
+    'successText'   => __('✅ Beat uploaded successfully.', 'beats-upload-player'),
+    'errorText'     => __('Upload failed. Please try again.', 'beats-upload-player'),
   ]);
 }
 add_action('wp_enqueue_scripts', 'beats_register_public_assets');
