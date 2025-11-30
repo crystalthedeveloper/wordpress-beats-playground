@@ -34,6 +34,24 @@ function beats_paths() {
 }
 
 if (!function_exists('beats_ensure_storage_locations')) {
+  function beats_write_protection_files( $dir ) {
+    if ( ! is_dir( $dir ) ) {
+      return;
+    }
+
+    $htaccess = trailingslashit( $dir ) . '.htaccess';
+    $index    = trailingslashit( $dir ) . 'index.html';
+
+    if ( ! file_exists( $htaccess ) && wp_is_writable( $dir ) ) {
+      $rules = "Options -Indexes\n<Files *>\n  <IfModule mod_php.c>\n    php_flag engine off\n  </IfModule>\n</Files>\n";
+      @file_put_contents( $htaccess, $rules );
+    }
+
+    if ( ! file_exists( $index ) ) {
+      @file_put_contents( $index, '<!-- Silence is golden. -->' );
+    }
+  }
+
   function beats_ensure_storage_locations($paths) {
     $dirs = [$paths['base'], $paths['audio_dir'], $paths['img_dir']];
     foreach ($dirs as $dir) {
@@ -43,6 +61,7 @@ if (!function_exists('beats_ensure_storage_locations')) {
       if (is_dir($dir) && !is_writable($dir)) {
         @chmod($dir, 0755);
       }
+      beats_write_protection_files( $dir );
     }
 
     $json_dir = dirname($paths['json']);
@@ -233,6 +252,27 @@ function beats_sanitize_beat_entry( $beat ) {
   }
 
   return $entry;
+}
+
+function beats_format_upload_error( $error ) {
+  if ( ! is_wp_error( $error ) ) {
+    return '';
+  }
+
+  $messages = array(
+    'beats-upload-missing-file' => __( 'No file selected.', 'beats-upload-player' ),
+    'beats-upload-error'        => __( 'There was an error uploading the file. Please try again.', 'beats-upload-player' ),
+    'beats-upload-size'         => __( 'The uploaded file exceeds the size limit.', 'beats-upload-player' ),
+    'beats-upload-mime'         => __( 'The uploaded file type is not allowed.', 'beats-upload-player' ),
+    'beats-upload-failed'       => __( 'Upload failed. Please try again.', 'beats-upload-player' ),
+  );
+
+  $code = $error->get_error_code();
+  if ( isset( $messages[ $code ] ) ) {
+    return $messages[ $code ];
+  }
+
+  return $error->get_error_message();
 }
 
 function beats_throttle_key( $action, $identifier ) {

@@ -183,7 +183,8 @@ function beats_cltd_upload_form_shortcode() {
     );
 
     if (is_wp_error($audio_upload)) {
-      echo '<p class="beats-upload-error">' . esc_html($audio_upload->get_error_message()) . '</p>';
+      $message = function_exists('beats_format_upload_error') ? beats_format_upload_error($audio_upload) : $audio_upload->get_error_message();
+      echo '<p class="beats-upload-error">' . esc_html($message) . '</p>';
       return ob_get_clean();
     }
 
@@ -195,7 +196,8 @@ function beats_cltd_upload_form_shortcode() {
     );
 
     if (is_wp_error($image_upload)) {
-      echo '<p class="beats-upload-error">' . esc_html($image_upload->get_error_message()) . '</p>';
+      $message = function_exists('beats_format_upload_error') ? beats_format_upload_error($image_upload) : $image_upload->get_error_message();
+      echo '<p class="beats-upload-error">' . esc_html($message) . '</p>';
       return ob_get_clean();
     }
 
