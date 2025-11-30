@@ -430,11 +430,38 @@ function beats_validate_ajax_request( $nonce_value, $nonce_action, $action_slug 
 if (!function_exists('beats_grouped_categories_or_default')) {
   function beats_grouped_categories_or_default($grouped, $data) {
     if (!empty($grouped)) {
-      return $grouped;
+      return beats_sort_grouped_categories($grouped);
     }
     if (!empty($data)) {
       $grouped[__('Uncategorized', 'beats-upload-player')] = $data;
     }
+    return beats_sort_grouped_categories($grouped);
+  }
+}
+
+if (!function_exists('beats_sort_grouped_categories')) {
+  function beats_sort_grouped_categories($grouped) {
+    if (empty($grouped) || !is_array($grouped)) {
+      return $grouped;
+    }
+
+    $defaults = beats_get_categories();
+    $order_map = array();
+    foreach ($defaults as $index => $name) {
+      $order_map[$name] = $index;
+    }
+
+    uksort($grouped, function ($a, $b) use ($order_map) {
+      $pos_a = isset($order_map[$a]) ? $order_map[$a] : PHP_INT_MAX;
+      $pos_b = isset($order_map[$b]) ? $order_map[$b] : PHP_INT_MAX;
+
+      if ($pos_a === $pos_b) {
+        return strcasecmp($a, $b);
+      }
+
+      return $pos_a - $pos_b;
+    });
+
     return $grouped;
   }
 }
