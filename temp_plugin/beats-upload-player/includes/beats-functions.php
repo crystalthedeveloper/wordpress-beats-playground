@@ -204,6 +204,38 @@ function beats_write_json($data) {
   @file_put_contents($p['json'], json_encode(array_values($data), JSON_PRETTY_PRINT));
 }
 
+function beats_throttle_key( $action, $identifier ) {
+  $id = is_user_logged_in() ? get_current_user_id() : $identifier;
+  return 'beats_throttle_' . sanitize_key( $action ) . '_' . sanitize_key( $id );
+}
+
+function beats_is_rate_limited( $action, $identifier, $window = 5, $max_attempts = 3 ) {
+  $key = beats_throttle_key( $action, $identifier );
+  $record = get_transient( $key );
+  if ( ! is_array( $record ) ) {
+    return false;
+  }
+  if ( $record['expires'] < time() ) {
+    delete_transient( $key );
+    return false;
+  }
+  return $record['attempts'] >= $max_attempts;
+}
+
+function beats_bump_rate_limit( $action, $identifier, $window = 5 ) {
+  $key = beats_throttle_key( $action, $identifier );
+  $record = get_transient( $key );
+  if ( ! is_array( $record ) ) {
+    $record = array(
+      'attempts' => 1,
+      'expires'  => time() + (int) $window,
+    );
+  } else {
+    $record['attempts'] = (int) $record['attempts'] + 1;
+  }
+  set_transient( $key, $record, (int) $window );
+}
+
 if (!function_exists('beats_grouped_categories_or_default')) {
   function beats_grouped_categories_or_default($grouped, $data) {
     if (!empty($grouped)) {
