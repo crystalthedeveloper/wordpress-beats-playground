@@ -1,0 +1,16 @@
+{
+  "apiVersion": 2,
+  "name": "beats/category-search",
+  "title": "Beats Category Search",
+  "category": "cltd",
+  "icon": "search",
+  "description": "Shows the Beats search field and category suggestions.",
+  "textdomain": "beats-upload-player",
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./index.js",
+  "example": {
+    "attributes": {}
+  }
+}
