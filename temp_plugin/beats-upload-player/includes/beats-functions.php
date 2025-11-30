@@ -275,12 +275,25 @@ function beats_format_upload_error( $error ) {
   return $error->get_error_message();
 }
 
+function beats_ajax_request_identifier() {
+  if ( is_user_logged_in() ) {
+    return 'user_' . get_current_user_id();
+  }
+
+  $ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
+  $ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 60 ) : 'ua';
+
+  return md5( $ip . $ua );
+}
+
 function beats_throttle_key( $action, $identifier ) {
   $id = is_user_logged_in() ? get_current_user_id() : $identifier;
   return 'beats_throttle_' . sanitize_key( $action ) . '_' . sanitize_key( $id );
 }
 
 function beats_is_rate_limited( $action, $identifier, $window = 5, $max_attempts = 3 ) {
+  $window      = (int) apply_filters( 'beats_rate_limit_window', $window, $action );
+  $max_attempts = (int) apply_filters( 'beats_rate_limit_attempts', $max_attempts, $action );
   $key = beats_throttle_key( $action, $identifier );
   $record = get_transient( $key );
   if ( ! is_array( $record ) ) {
@@ -294,6 +307,7 @@ function beats_is_rate_limited( $action, $identifier, $window = 5, $max_attempts
 }
 
 function beats_bump_rate_limit( $action, $identifier, $window = 5 ) {
+  $window = (int) apply_filters( 'beats_rate_limit_window', $window, $action );
   $key = beats_throttle_key( $action, $identifier );
   $record = get_transient( $key );
   if ( ! is_array( $record ) ) {
@@ -305,6 +319,21 @@ function beats_bump_rate_limit( $action, $identifier, $window = 5 ) {
     $record['attempts'] = (int) $record['attempts'] + 1;
   }
   set_transient( $key, $record, (int) $window );
+}
+
+function beats_validate_ajax_request( $nonce_value, $nonce_action, $action_slug ) {
+  if ( empty( $nonce_value ) || ! wp_verify_nonce( $nonce_value, $nonce_action ) ) {
+    return new WP_Error( 'beats-ajax-invalid', __( 'Invalid request.', 'beats-upload-player' ) );
+  }
+
+  $identifier = beats_ajax_request_identifier();
+  if ( beats_is_rate_limited( $action_slug, $identifier ) ) {
+    return new WP_Error( 'beats-ajax-rate-limited', __( 'Too many requests. Please wait a moment.', 'beats-upload-player' ) );
+  }
+
+  return array(
+    'identifier' => $identifier,
+  );
 }
 
 if (!function_exists('beats_grouped_categories_or_default')) {

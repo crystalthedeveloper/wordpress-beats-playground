@@ -13,14 +13,17 @@ add_action('wp_ajax_load_more_beats', 'beats_ajax_load_more');
 add_action('wp_ajax_nopriv_load_more_beats', 'beats_ajax_load_more');
 
 function beats_ajax_load_more() {
-  if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'beats-load')) {
-    wp_send_json_error(['message' => __('Invalid request.', 'beats-upload-player')], 403);
+  $nonce  = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+  $check  = function_exists('beats_validate_ajax_request')
+    ? beats_validate_ajax_request($nonce, 'beats-load', 'load_more')
+    : true;
+
+  if (is_wp_error($check)) {
+    $status = $check->get_error_code() === 'beats-ajax-rate-limited' ? 429 : 403;
+    wp_send_json_error(['message' => $check->get_error_message()], $status);
   }
 
-  $identifier = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : 'unknown';
-  if (function_exists('beats_is_rate_limited') && beats_is_rate_limited('load_more', $identifier, 5, 5)) {
-    wp_send_json_error(['message' => __('Too many requests. Please wait a moment.', 'beats-upload-player')], 429);
-  }
+  $identifier = is_array($check) && isset($check['identifier']) ? $check['identifier'] : 'global';
 
   $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
   $requested_limit = isset($_POST['limit']) ? intval($_POST['limit']) : 0;
@@ -35,7 +38,7 @@ function beats_ajax_load_more() {
   $chunk = beats_render_category_batch($offset, $limit);
 
   if (function_exists('beats_bump_rate_limit')) {
-    beats_bump_rate_limit('load_more', $identifier, 5);
+    beats_bump_rate_limit('load_more', $identifier, apply_filters('beats_ajax_rate_limit_window', 5, 'load_more'));
   }
 
   if (empty($chunk['html'])) {
