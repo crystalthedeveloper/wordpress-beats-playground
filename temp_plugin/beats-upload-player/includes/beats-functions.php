@@ -353,6 +353,19 @@ function beats_format_upload_error( $error ) {
   return $error->get_error_message();
 }
 
+function beats_user_can_frontend_upload( $user_id = 0 ) {
+  if ( ! $user_id ) {
+    $user_id = get_current_user_id();
+  }
+
+  if ( ! $user_id ) {
+    return false;
+  }
+
+  $default = true;
+  return (bool) apply_filters( 'beats_user_can_frontend_upload', $default, $user_id );
+}
+
 function beats_ajax_request_identifier() {
   if ( is_user_logged_in() ) {
     return 'user_' . get_current_user_id();

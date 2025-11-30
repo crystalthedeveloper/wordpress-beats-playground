@@ -146,7 +146,7 @@ function beats_cltd_upload_form_shortcode() {
     return ob_get_clean();
   }
 
-  if (is_user_logged_in() && !current_user_can('upload_files')) {
+  if (!beats_user_can_frontend_upload(get_current_user_id())) {
     echo '<p class="beats-upload-error">' . esc_html__('You do not have permission to upload files.', 'beats-upload-player') . '</p>';
     return ob_get_clean();
   }
